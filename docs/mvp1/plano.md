@@ -272,7 +272,7 @@ Pedido do usuário: app responsivo, seguindo boas práticas de UX/UI. Verificado
 
 - **Coluna de conteúdo** (`useLayout` em `shared/ui`): margem de 16pt em telas com menos de 360pt e 24pt nas demais; largura máxima de 640pt centralizada em telas largas (web e tablet), aplicada por `Screen`, `PagedList`, os filtros das vitrines e o chat.
 - **Tamanho de fonte do sistema:** o texto acompanha a preferência de acessibilidade até 1,5×; acima disso os layouts fixos quebrariam (`MAX_FONT_SCALE`, aplicado em `Text` e nos campos).
-- **Barra de abas:** cinco abas cabem em 320pt com o tamanho padrão do iOS (10pt) e sem margem lateral no item; "Profissionais" virou "Explorar", como no lado do profissional.
+- **Barra de abas:** rótulos no tamanho padrão do iOS (10pt) e sem margem lateral no item; "Profissionais" virou "Explorar" (como no lado do profissional) e a aba "Candidaturas" virou "Inscrições", porque 12 letras não cabem em 375pt. Em 320pt (aparelhos antigos) rótulos de 9 letras ainda ganham reticências.
 - **Selos de status** ficam abaixo do nome nas linhas de perfil (candidaturas, candidatos da vaga) em vez de disputar a linha com o título, que truncava em 375pt; nas linhas de vaga/freela o selo encolhe e quebra linha quando falta espaço.
 - **Puxar para atualizar** nas listas e perfis (`onRefresh` do `Screen`, `PagedList`), com o indicador só durante a atualização pedida pela pessoa.
 - **QR do Pix** escala com a tela (70% da largura, até 240pt) em vez de 200pt fixos.

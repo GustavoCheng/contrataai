@@ -11,7 +11,7 @@ export default function ProfessionalTabs() {
       />
       <Tabs.Screen
         name="applications"
-        options={{ title: 'Candidaturas', tabBarIcon: tabIcon('paper-plane-outline') }}
+        options={{ title: 'Inscrições', tabBarIcon: tabIcon('paper-plane-outline') }}
       />
       <Tabs.Screen
         name="inbox"
