@@ -3,5 +3,4 @@ node_modules
 dist
 supabase/.temp
 **/database.types.ts
-mobile-app-ui-design
 docs

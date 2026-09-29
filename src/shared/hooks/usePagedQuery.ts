@@ -1,6 +1,6 @@
 import { useInfiniteQuery, type QueryKey } from '@tanstack/react-query';
 
-export const PAGE_SIZE = 20;
+const PAGE_SIZE = 20;
 
 /** Intervalo `.range(from, to)` do PostgREST para a página (começa em 0). */
 export const pageRange = (page: number): [number, number] => [

@@ -2,7 +2,7 @@ export { Avatar } from './Avatar';
 export { Badge } from './Badge';
 export { Button } from './Button';
 export { CepStatus } from './CepStatus';
-export { Chip, ChipList, ChipSelect } from './Chip';
+export { ChipList, ChipSelect } from './Chip';
 export { ConfirmButton } from './ConfirmButton';
 export { EmptyState } from './EmptyState';
 export { FormTextField } from './FormTextField';

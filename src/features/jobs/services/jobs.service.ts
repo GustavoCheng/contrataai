@@ -100,8 +100,6 @@ export async function listMyJobApplications(professionalId: string) {
   return data;
 }
 
-export type MyJobApplication = Awaited<ReturnType<typeof listMyJobApplications>>[number];
-
 export async function getMyJobApplication(jobId: string, professionalId: string) {
   const { data, error } = await supabase
     .from('job_applications')

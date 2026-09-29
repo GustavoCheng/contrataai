@@ -11,7 +11,7 @@ import {
   saveJob,
 } from '../services/jobs.service';
 
-export const jobKeys = {
+const jobKeys = {
   restaurantJobs: (restaurantId: string) => ['restaurant-jobs', restaurantId] as const,
   detail: (id: string | undefined) => ['job', id] as const,
   applications: (jobId: string) => ['job-applications', jobId] as const,

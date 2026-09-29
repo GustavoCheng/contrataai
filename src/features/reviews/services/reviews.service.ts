@@ -21,8 +21,6 @@ export async function listReviews(revieweeId: string) {
     .filter(isPresent);
 }
 
-export type ReviewCard = Awaited<ReturnType<typeof listReviews>>[number];
-
 /** A avaliação que a pessoa já deixou neste freela, se houver. */
 export async function getMyGigReview({ gigId, reviewerId }: { gigId: string; reviewerId: string }) {
   const { data, error } = await supabase

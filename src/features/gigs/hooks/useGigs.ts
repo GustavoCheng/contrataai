@@ -22,7 +22,7 @@ import {
   subscribeToGig,
 } from '../services/gigs.service';
 
-export const gigKeys = {
+const gigKeys = {
   restaurantGigs: (restaurantId: string) => ['restaurant-gigs', restaurantId] as const,
   detail: (id: string | undefined) => ['gig', id] as const,
   applications: (gigId: string) => ['gig-applications', gigId] as const,

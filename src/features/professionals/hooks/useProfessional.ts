@@ -7,7 +7,7 @@ import {
   uploadAvatar,
 } from '../services/professionals.service';
 
-export const professionalKeys = {
+const professionalKeys = {
   profile: (id: string | undefined) => ['professional', id] as const,
   settings: (userId: string) => ['professional-settings', userId] as const,
 };

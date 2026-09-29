@@ -5,7 +5,7 @@ import { colors, radius, spacing } from './theme';
 type ChipProps = { label: string; selected?: boolean; onPress?: () => void };
 
 /** Pílula de seleção (com onPress) ou de exibição (sem). Selecionado = tom escuro, não a cor de destaque. */
-export function Chip({ label, selected = false, onPress }: ChipProps) {
+function Chip({ label, selected = false, onPress }: ChipProps) {
   const text = (
     <Text variant="caption" weight="semibold" tone={selected ? 'onPrimary' : 'default'}>
       {label}

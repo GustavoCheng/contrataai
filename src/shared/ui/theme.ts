@@ -1,5 +1,5 @@
 /**
- * Tokens de design (skill mobile-app-ui-design): 60/30/10, grade de 8pt,
+ * Tokens de design: 60/30/10 (fundo, texto, destaque só em ações e indicadores), grade de 8pt,
  * 4 tamanhos de fonte e 2 pesos. Cores de texto usam opacidade sobre o mesmo tom.
  */
 export const colors = {

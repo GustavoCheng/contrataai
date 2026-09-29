@@ -10,7 +10,7 @@ import {
 
 const STORE_PHOTO_ASPECT: [number, number] = [4, 3];
 
-export const restaurantKeys = {
+const restaurantKeys = {
   detail: (id: string | undefined) => ['restaurant', id] as const,
 };
 

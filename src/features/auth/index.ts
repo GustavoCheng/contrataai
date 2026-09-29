@@ -5,4 +5,3 @@ export { SignUpProfessionalScreen } from './screens/SignUpProfessionalScreen';
 export { SignUpRestaurantScreen } from './screens/SignUpRestaurantScreen';
 export { VerifyEmailScreen } from './screens/VerifyEmailScreen';
 export { WelcomeScreen } from './screens/WelcomeScreen';
-export type { AccountType } from './services/auth.service';

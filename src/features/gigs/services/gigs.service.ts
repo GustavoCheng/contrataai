@@ -45,8 +45,6 @@ export async function listGigApplications(gigId: string) {
   return data;
 }
 
-export type GigApplication = Awaited<ReturnType<typeof listGigApplications>>[number];
-
 export async function createGig({
   restaurantId,
   values,
@@ -112,8 +110,6 @@ export async function listMyGigApplications(professionalId: string) {
   if (error) throw await toAppError(error);
   return data;
 }
-
-export type MyGigApplication = Awaited<ReturnType<typeof listMyGigApplications>>[number];
 
 export type CheckpointKind = Enums<'checkpoint_kind'>;
 
