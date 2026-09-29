@@ -5,7 +5,8 @@ import { Button } from '@/shared/ui';
 
 const FEEDBACK_MS = 2500;
 
-export function CopyPixButton({ code }: { code: string }) {
+/** Copia o código Pix e avisa "copiado" por alguns segundos. */
+export function useCopyPix(code: string) {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -20,7 +21,10 @@ export function CopyPixButton({ code }: { code: string }) {
     AccessibilityInfo.announceForAccessibility('Código Pix copiado');
   };
 
-  return (
-    <Button title={copied ? 'Código copiado' : 'Copiar código Pix'} onPress={() => void copy()} />
-  );
+  return { copied, copy: () => void copy() };
+}
+
+export function CopyPixButton({ code }: { code: string }) {
+  const { copied, copy } = useCopyPix(code);
+  return <Button title={copied ? 'Código copiado' : 'Copiar código Pix'} onPress={copy} />;
 }

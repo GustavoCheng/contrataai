@@ -276,6 +276,7 @@ Pedido do usuário: app responsivo, seguindo boas práticas de UX/UI. Verificado
 - **Selos de status** ficam abaixo do nome nas linhas de perfil (candidaturas, candidatos da vaga) em vez de disputar a linha com o título, que truncava em 375pt; nas linhas de vaga/freela o selo encolhe e quebra linha quando falta espaço.
 - **Puxar para atualizar** nas listas e perfis (`onRefresh` do `Screen`, `PagedList`), com o indicador só durante a atualização pedida pela pessoa.
 - **QR do Pix** escala com a tela (70% da largura, até 240pt) em vez de 200pt fixos.
+- **Pix Copia e Cola visível:** o código da cobrança aparece por extenso na tela de pagamento, em fonte monoespaçada e selecionável, com "Copiar" ao lado; o botão principal no rodapé continua. Pedido do usuário ("uma chave além do QR"): a chave Pix aleatória da conta foi descartada porque um Pix por chave não fica ligado ao freela, e o pagamento deixaria de ser reconhecido sozinho.
 
 ### Migrações depois da inicial
 `profiles_location` (sprint 2), `explore_distance` (3), `realtime_inbox` (4), `realtime_payments` (5), `review_cards` (6) e `checkpoint_codes` (código de 4 dígitos).
