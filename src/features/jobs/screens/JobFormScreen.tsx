@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useForm } from 'react-hook-form';
 import { useUserId } from '@/shared/hooks/useSession';
-import { centsToReaisInput } from '@/shared/lib/format';
+import { formatReaisInput } from '@/shared/lib/format';
 import { Button, ErrorView, LoadingView, Notice, Screen } from '@/shared/ui';
 import { JobFormFields } from '../components/JobFormFields';
 import { useJob, useSaveJob } from '../hooks/useJobs';
@@ -20,6 +20,8 @@ export function JobFormScreen() {
   return <JobForm job={job.data} />;
 }
 
+const toReaisInput = (cents: number) => formatReaisInput(String(Math.round(cents / 100)));
+
 function JobForm({ job }: { job: Job | null }) {
   const restaurantId = useUserId();
   const save = useSaveJob(restaurantId);
@@ -29,8 +31,8 @@ function JobForm({ job }: { job: Job | null }) {
       ? {
           role: job.role,
           shift: job.shift,
-          salaryMin: centsToReaisInput(job.salary_min_cents),
-          salaryMax: job.salary_max_cents ? centsToReaisInput(job.salary_max_cents) : '',
+          salaryMin: toReaisInput(job.salary_min_cents),
+          salaryMax: job.salary_max_cents ? toReaisInput(job.salary_max_cents) : '',
           description: job.description,
         }
       : { salaryMin: '', salaryMax: '', description: '' },

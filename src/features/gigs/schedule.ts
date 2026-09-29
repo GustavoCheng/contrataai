@@ -1,6 +1,5 @@
-import { formatDay } from '@/shared/lib/format';
+import { formatDay, pad } from '@/shared/lib/format';
 
-const pad = (value: number) => String(value).padStart(2, '0');
 const toDayValue = (date: Date) =>
   `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 

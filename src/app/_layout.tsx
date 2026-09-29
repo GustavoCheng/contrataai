@@ -6,7 +6,7 @@ import { StyleSheet, View } from 'react-native';
 import { useAccountType, useSignOut } from '@/features/auth';
 import { SessionProvider, useSession } from '@/shared/hooks/useSession';
 import { queryClient } from '@/shared/lib/query-client';
-import { Button, EmptyState, LoadingView, colors } from '@/shared/ui';
+import { Button, EmptyState, LoadingView, colors, stackScreenOptions } from '@/shared/ui';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -53,9 +53,7 @@ function RootNavigator() {
   }
 
   return (
-    <Stack
-      screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}
-    >
+    <Stack screenOptions={{ ...stackScreenOptions, headerShown: false }}>
       <Stack.Protected guard={!session}>
         <Stack.Screen name="(auth)" />
       </Stack.Protected>

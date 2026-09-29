@@ -1,4 +1,3 @@
-export { Avatar } from './Avatar';
 export { Badge } from './Badge';
 export { Button } from './Button';
 export { CepStatus } from './CepStatus';
@@ -17,8 +16,7 @@ export { ScreenTitle } from './ScreenTitle';
 export { SearchField } from './SearchField';
 export { Section } from './Section';
 export { stackScreenOptions } from './stackOptions';
-export { StatusCard } from './StatusCard';
-export { StatusPill, type StatusTone } from './StatusPill';
+export { StatusPill, type StatusTone, toneStyles } from './StatusPill';
 export { tabBarScreenOptions, tabIcon } from './tabBarOptions';
 export { Text } from './Text';
 export { TextField } from './TextField';

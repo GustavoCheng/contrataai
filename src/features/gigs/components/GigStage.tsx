@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { PayoutStatus } from '@/features/payments';
 import { formatMoney, formatTime } from '@/shared/lib/format';
-import { StatusCard } from '@/shared/ui';
+import { StatusCard } from './StatusCard';
 import type { Gig } from '../services/gigs.service';
 
 const DISPUTE_TEXT =

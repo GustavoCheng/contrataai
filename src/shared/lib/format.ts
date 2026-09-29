@@ -1,16 +1,3 @@
-/** "2016-03-10" -> "há 8 anos" (tempo desde a data, em anos completos). */
-export function formatTimeSince(isoDate: string, now = new Date()): string {
-  const start = new Date(`${isoDate}T00:00:00`);
-  let years = now.getFullYear() - start.getFullYear();
-  const beforeAnniversary =
-    now.getMonth() < start.getMonth() ||
-    (now.getMonth() === start.getMonth() && now.getDate() < start.getDate());
-  if (beforeAnniversary) years -= 1;
-
-  if (years < 1) return 'há menos de 1 ano';
-  return years === 1 ? 'há 1 ano' : `há ${years} anos`;
-}
-
 // Mínimo e máximo juntos: há motores que recusam só o máximo abaixo do padrão da moeda (2 casas).
 const money = new Intl.NumberFormat('pt-BR', {
   style: 'currency',
@@ -40,7 +27,7 @@ export function formatDistance(km: number): string {
 }
 
 const WEEKDAYS = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
-const pad = (value: number) => String(value).padStart(2, '0');
+export const pad = (value: number) => String(value).padStart(2, '0');
 const hourLabel = (date: Date) =>
   `${pad(date.getHours())}h${date.getMinutes() ? pad(date.getMinutes()) : ''}`;
 
@@ -66,11 +53,6 @@ export function formatDateTime(iso: string): string {
   return `${formatDay(date)} às ${clock(date)}`;
 }
 
-const monthYear = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' });
-
-/** Data de uma avaliação: "setembro de 2026". */
-export const formatMonthYear = (iso: string) => monthYear.format(new Date(iso));
-
 /** Hora de mensagem: "18:05" hoje, "ontem" ou "25/09". */
 export function formatMessageTime(iso: string, now = new Date()): string {
   const date = new Date(iso);
@@ -84,12 +66,6 @@ export function formatMessageTime(iso: string, now = new Date()): string {
   return `${pad(date.getDate())}/${pad(date.getMonth() + 1)}`;
 }
 
-/** Máscara de horário enquanto digita: "1830" -> "18:30". */
-export function formatTimeInput(text: string): string {
-  const digits = text.replace(/\D/g, '').slice(0, 4);
-  return digits.length > 2 ? `${digits.slice(0, 2)}:${digits.slice(2)}` : digits;
-}
-
 /** Máscara de valor em reais inteiros enquanto digita: "3500" -> "3.500". */
 export function formatReaisInput(text: string): string {
   const digits = text.replace(/\D/g, '').replace(/^0+/, '').slice(0, 7);
@@ -97,9 +73,6 @@ export function formatReaisInput(text: string): string {
 }
 
 export const reaisToCents = (text: string) => Number(text.replace(/\D/g, '') || 0) * 100;
-
-export const centsToReaisInput = (cents: number) =>
-  formatReaisInput(String(Math.round(cents / 100)));
 
 /** Mesma normalização das colunas de busca do banco: sem acento e em minúsculas. */
 export function normalizeSearch(text: string): string {

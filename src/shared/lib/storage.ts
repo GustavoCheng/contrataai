@@ -1,7 +1,7 @@
 import { toAppError } from './errors';
 import { supabase } from './supabase';
 
-export type ImageBucket = 'avatars' | 'restaurant-photos';
+type ImageBucket = 'avatars' | 'restaurant-photos';
 export type PickedImage = { uri: string; mimeType: string };
 
 /** Envia a foto para a pasta do usuário (`{userId}/...`, exigido pelas policies) e devolve o caminho. */

@@ -1,9 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Children, type ComponentProps, type ReactNode, useEffect, useState } from 'react';
 import { AccessibilityInfo, Animated, Platform, StyleSheet, View } from 'react-native';
-import type { StatusTone } from './StatusPill';
-import { Text } from './Text';
-import { colors, radius, spacing } from './theme';
+import { type StatusTone, Text, colors, radius, spacing, toneStyles } from '@/shared/ui';
 
 type StatusCardProps = {
   icon: ComponentProps<typeof Ionicons>['name'];
@@ -13,13 +11,6 @@ type StatusCardProps = {
   /** Momento de pico (ex.: "Pagamento liberado"): layout em destaque e ícone animado. */
   celebrate?: boolean;
   children?: ReactNode;
-};
-
-const toneColors: Record<StatusTone, { background: string; icon: string }> = {
-  neutral: { background: colors.surface, icon: colors.text },
-  attention: { background: colors.primarySoft, icon: colors.primary },
-  positive: { background: colors.successSoft, icon: colors.success },
-  negative: { background: colors.dangerSoft, icon: colors.danger },
 };
 
 /** Em que pé está o processo e o que vem a seguir, com as ações da etapa logo abaixo. */
@@ -51,7 +42,7 @@ export function StatusCard({
     };
   }, [celebrate, scale]);
 
-  const { background, icon: iconColor } = toneColors[tone];
+  const { background, text: iconColor } = toneStyles[tone];
   const content = Children.toArray(children);
   const iconSize = celebrate ? 32 : 20;
 

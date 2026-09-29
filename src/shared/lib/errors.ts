@@ -47,7 +47,7 @@ const messages = {
   unknown: 'Algo deu errado. Tente de novo.',
 } as const;
 
-export type AppErrorCode = keyof typeof messages;
+type AppErrorCode = keyof typeof messages;
 
 /** Erro tipado que os serviços lançam; `message` já está pronta para a tela. */
 export class AppError extends Error {

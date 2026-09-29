@@ -29,10 +29,6 @@ export function formatCep(value: string): string {
 }
 
 /** "Pinheiros, São Paulo - SP" */
-export function formatPlace(place: {
-  neighborhood: string | null;
-  city: string;
-  state: string;
-}): string {
+export function formatPlace(place: Pick<CepAddress, 'neighborhood' | 'city' | 'state'>): string {
   return [place.neighborhood, `${place.city} - ${place.state}`].filter(Boolean).join(', ');
 }

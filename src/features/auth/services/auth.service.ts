@@ -8,8 +8,6 @@ import type {
   VerifyEmailInput,
 } from '../schemas';
 
-export type AccountType = Enums<'account_type'>;
-
 export async function signIn(input: SignInInput): Promise<void> {
   const { error } = await supabase.auth.signInWithPassword(input);
   if (error) throw await toAppError(error);
@@ -43,7 +41,7 @@ export async function signOut(): Promise<void> {
   if (error) throw await toAppError(error);
 }
 
-export async function getAccountType(userId: string): Promise<AccountType> {
+export async function getAccountType(userId: string): Promise<Enums<'account_type'>> {
   const { data, error } = await supabase
     .from('profiles')
     .select('account_type')

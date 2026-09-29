@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
   },
   primary: {
     backgroundColor: colors.primary,
-    // Brilho sutil no topo do botão principal (skill: inner shadow branca)
+    // Brilho sutil no topo do botão principal.
     borderTopWidth: 1,
     borderTopColor: 'rgba(255, 255, 255, 0.25)',
   },

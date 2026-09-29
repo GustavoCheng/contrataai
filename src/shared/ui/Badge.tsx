@@ -6,7 +6,7 @@ import { colors, radius, spacing } from './theme';
 
 type BadgeProps = { icon: ComponentProps<typeof Ionicons>['name']; label: string };
 
-/** Selo discreto com o tom de destaque a 8% (skill: 5% de cor em elementos secundários). */
+/** Selo discreto com o tom de destaque a 8%. */
 export function Badge({ icon, label }: BadgeProps) {
   return (
     <View style={styles.badge}>

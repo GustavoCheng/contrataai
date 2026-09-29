@@ -1,6 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
-import { Avatar, Text, colors, spacing } from '@/shared/ui';
+import { Text, colors, spacing } from '@/shared/ui';
+import { Avatar } from './Avatar';
 
 type AvatarPickerProps = {
   uri: string | null;
@@ -19,7 +20,7 @@ export function AvatarPicker({ uri, name, loading, onPress }: AvatarPickerProps)
       style={styles.container}
     >
       <View>
-        <Avatar uri={uri} name={name} size={96} />
+        <Avatar uri={uri} name={name} />
         <View style={styles.badge}>
           {loading ? (
             <ActivityIndicator size="small" color={colors.onPrimary} />

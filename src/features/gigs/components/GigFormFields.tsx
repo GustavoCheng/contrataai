@@ -1,6 +1,6 @@
 import { Controller, type UseFormReturn } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
-import { formatReaisInput, formatTimeInput } from '@/shared/lib/format';
+import { formatReaisInput } from '@/shared/lib/format';
 import { roleOptions } from '@/shared/lib/labels';
 import { ChipSelect, FormTextField, Section, Text, spacing } from '@/shared/ui';
 import { dayOptions } from '../schedule';
@@ -92,6 +92,12 @@ export function GigFormFields({ form }: Props) {
       />
     </>
   );
+}
+
+/** Máscara de horário enquanto digita: "1830" -> "18:30". */
+function formatTimeInput(text: string): string {
+  const digits = text.replace(/\D/g, '').slice(0, 4);
+  return digits.length > 2 ? `${digits.slice(0, 2)}:${digits.slice(2)}` : digits;
 }
 
 const styles = StyleSheet.create({

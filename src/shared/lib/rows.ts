@@ -3,7 +3,7 @@
  * tabelas de origem). `requireFields` estreita as colunas que a tabela garante, a partir do
  * próprio tipo gerado, sem redeclarar interfaces.
  */
-export type WithRequired<T, K extends keyof T> = T & { [P in K]-?: NonNullable<T[P]> };
+type WithRequired<T, K extends keyof T> = T & { [P in K]-?: NonNullable<T[P]> };
 
 export function requireFields<T extends object, K extends keyof T>(
   row: T,

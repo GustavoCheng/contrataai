@@ -2,8 +2,9 @@ import { StyleSheet, View } from 'react-native';
 import { roleLabels } from '@/shared/lib/labels';
 import { formatPlace } from '@/shared/lib/location';
 import { imageUrl } from '@/shared/lib/storage';
-import { Avatar, Badge, ChipList, Rating, Section, Text, spacing } from '@/shared/ui';
+import { Badge, ChipList, Rating, Section, Text, spacing } from '@/shared/ui';
 import type { Professional } from '../services/professionals.service';
+import { Avatar } from './Avatar';
 
 /** Perfil como os restaurantes veem (também é a prévia no próprio perfil). */
 export function ProfessionalProfileView({ professional }: { professional: Professional }) {
@@ -14,7 +15,6 @@ export function ProfessionalProfileView({ professional }: { professional: Profes
         <Avatar
           uri={professional.photo_path && imageUrl('avatars', professional.photo_path)}
           name={professional.full_name}
-          size={96}
         />
         <View style={styles.headerText}>
           <Text variant="heading">{professional.full_name}</Text>

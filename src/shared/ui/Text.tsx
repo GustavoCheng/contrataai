@@ -4,7 +4,7 @@ import { colors, fontSize, fontWeight } from './theme';
 type Variant = keyof typeof fontSize;
 type Tone = 'default' | 'body' | 'muted' | 'primary' | 'danger' | 'onPrimary';
 
-export type TextProps = RNTextProps & {
+type TextProps = RNTextProps & {
   variant?: Variant;
   weight?: keyof typeof fontWeight;
   tone?: Tone;

@@ -1,18 +1,16 @@
 import { Image } from 'expo-image';
 import { StyleSheet, View } from 'react-native';
-import { Text } from './Text';
-import { colors } from './theme';
+import { Text, colors } from '@/shared/ui';
 
-type AvatarProps = { uri: string | null; name: string; size?: number };
+const SIZE = 96;
 
-/** Foto da pessoa; sem foto, as iniciais (skill: foto > iniciais > ícone genérico). */
-export function Avatar({ uri, name, size = 64 }: AvatarProps) {
-  const shape = { width: size, height: size, borderRadius: size / 2 };
+/** Foto da pessoa; sem foto, as iniciais. */
+export function Avatar({ uri, name }: { uri: string | null; name: string }) {
   if (uri) {
     return (
       <Image
         source={{ uri }}
-        style={shape}
+        style={styles.shape}
         contentFit="cover"
         transition={150}
         accessibilityLabel={`Foto de ${name}`}
@@ -26,8 +24,8 @@ export function Avatar({ uri, name, size = 64 }: AvatarProps) {
     .map((word) => word.charAt(0).toUpperCase())
     .join('');
   return (
-    <View style={[styles.fallback, shape]}>
-      <Text variant={size >= 64 ? 'heading' : 'body'} weight="semibold" tone="primary">
+    <View style={[styles.shape, styles.fallback]}>
+      <Text variant="heading" weight="semibold" tone="primary">
         {initials || '?'}
       </Text>
     </View>
@@ -35,6 +33,7 @@ export function Avatar({ uri, name, size = 64 }: AvatarProps) {
 }
 
 const styles = StyleSheet.create({
+  shape: { width: SIZE, height: SIZE, borderRadius: SIZE / 2 },
   fallback: {
     alignItems: 'center',
     justifyContent: 'center',

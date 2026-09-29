@@ -4,7 +4,7 @@ import { colors, radius, spacing } from './theme';
 
 export type StatusTone = 'neutral' | 'attention' | 'positive' | 'negative';
 
-const toneStyles: Record<StatusTone, { background: string; text: string }> = {
+export const toneStyles: Record<StatusTone, { background: string; text: string }> = {
   neutral: { background: colors.surface, text: colors.text },
   attention: { background: colors.primarySoft, text: colors.primary },
   positive: { background: colors.successSoft, text: colors.success },

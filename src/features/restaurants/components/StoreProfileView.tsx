@@ -1,7 +1,6 @@
 import { Image } from 'expo-image';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { formatCnpj } from '@/shared/lib/cnpj';
-import { formatTimeSince } from '@/shared/lib/format';
 import { formatPlace } from '@/shared/lib/location';
 import { imageUrl } from '@/shared/lib/storage';
 import { Badge, Rating, Section, Text, radius, spacing } from '@/shared/ui';
@@ -71,6 +70,19 @@ function formatStreet(restaurant: Restaurant): string {
     .filter(Boolean)
     .join(', ');
   return `${street} · ${formatPlace(restaurant)}`;
+}
+
+/** Tempo desde a data, em anos completos: "há 8 anos". */
+function formatTimeSince(isoDate: string, now = new Date()): string {
+  const start = new Date(`${isoDate}T00:00:00`);
+  let years = now.getFullYear() - start.getFullYear();
+  const beforeAnniversary =
+    now.getMonth() < start.getMonth() ||
+    (now.getMonth() === start.getMonth() && now.getDate() < start.getDate());
+  if (beforeAnniversary) years -= 1;
+
+  if (years < 1) return 'há menos de 1 ano';
+  return years === 1 ? 'há 1 ano' : `há ${years} anos`;
 }
 
 const styles = StyleSheet.create({

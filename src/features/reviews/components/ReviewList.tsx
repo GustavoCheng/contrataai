@@ -1,5 +1,4 @@
 import { StyleSheet, View } from 'react-native';
-import { formatMonthYear } from '@/shared/lib/format';
 import { imageUrl } from '@/shared/lib/storage';
 import { Button, Notice, ProfileRow, Section, Text, spacing } from '@/shared/ui';
 import { useReviews } from '../hooks/useReviews';
@@ -35,7 +34,7 @@ export function ReviewList({ revieweeId }: { revieweeId: string }) {
             placeholderIcon={review.by_restaurant ? 'storefront-outline' : 'person-outline'}
             shape={review.by_restaurant ? 'square' : 'round'}
             title={review.reviewer_name}
-            subtitle={formatMonthYear(review.created_at)}
+            subtitle={monthYear.format(new Date(review.created_at))}
           />
           <ReviewStars rating={review.rating} />
           {review.comment && <Text>{review.comment}</Text>}
@@ -44,6 +43,8 @@ export function ReviewList({ revieweeId }: { revieweeId: string }) {
     </Section>
   );
 }
+
+const monthYear = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' });
 
 const styles = StyleSheet.create({
   review: { gap: spacing.sm },
