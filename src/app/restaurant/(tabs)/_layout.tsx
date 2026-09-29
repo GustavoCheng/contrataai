@@ -6,7 +6,7 @@ export default function RestaurantTabs() {
     <Tabs screenOptions={tabBarScreenOptions}>
       <Tabs.Screen
         name="professionals"
-        options={{ title: 'Profissionais', tabBarIcon: tabIcon('people-outline') }}
+        options={{ title: 'Explorar', tabBarIcon: tabIcon('people-outline') }}
       />
       <Tabs.Screen
         name="jobs"

@@ -1,5 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { MAX_FONT_SCALE } from './Text';
 import { colors, fontSize, radius, shadow, spacing, touchHeight } from './theme';
 
 type SearchFieldProps = {
@@ -18,6 +19,7 @@ export function SearchField({ value, onChangeText, placeholder }: SearchFieldPro
         placeholder={placeholder}
         placeholderTextColor={colors.textMuted}
         accessibilityLabel={placeholder}
+        maxFontSizeMultiplier={MAX_FONT_SCALE}
         returnKeyType="search"
         autoCorrect={false}
         style={styles.input}

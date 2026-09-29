@@ -3,6 +3,7 @@ import { Image } from 'expo-image';
 import type { ComponentProps, ReactNode } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Rating } from './Rating';
+import { StatusPill, type StatusTone } from './StatusPill';
 import { Text } from './Text';
 import { colors, radius, spacing } from './theme';
 
@@ -14,7 +15,9 @@ type ProfileRowProps = {
   title: string;
   subtitle?: string;
   rating?: { average: number; count: number };
-  /** Ações ou status à direita; sem isso, mostra a seta quando há onPress. */
+  /** Selo de status abaixo do texto, para não disputar a linha com o título. */
+  status?: { label: string; tone?: StatusTone };
+  /** Algo curto à direita (hora, seta); sem isso, mostra a seta quando há onPress. */
   trailing?: ReactNode;
   onPress?: () => void;
 };
@@ -26,6 +29,7 @@ export function ProfileRow({
   title,
   subtitle,
   rating,
+  status,
   trailing,
   onPress,
 }: ProfileRowProps) {
@@ -55,6 +59,7 @@ export function ProfileRow({
           </Text>
         )}
         {rating && <Rating average={rating.average} count={rating.count} />}
+        {status && <StatusPill label={status.label} tone={status.tone} />}
       </View>
       {trailing ??
         (onPress && <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />)}

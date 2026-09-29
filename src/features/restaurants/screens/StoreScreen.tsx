@@ -16,6 +16,7 @@ export function StoreScreen() {
   return (
     <Screen
       edges={['top']}
+      onRefresh={restaurant.refetch}
       footer={
         <>
           <Button

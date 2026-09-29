@@ -4,7 +4,15 @@ import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
 import { roleOptions, type JobRole } from '@/shared/lib/labels';
-import { ChipSelect, EmptyState, PagedList, SearchField, colors, spacing } from '@/shared/ui';
+import {
+  ChipSelect,
+  EmptyState,
+  PagedList,
+  SearchField,
+  colors,
+  spacing,
+  useLayout,
+} from '@/shared/ui';
 import { OpeningCard } from '../components/OpeningCard';
 import { useOpeningSearch } from '../hooks/useOpeningSearch';
 import type { OpeningKind } from '../services/openings.service';
@@ -19,10 +27,11 @@ export function ExploreOpeningsScreen() {
   const [kind, setKind] = useState<OpeningKind | null>(null);
   const [role, setRole] = useState<JobRole | null>(null);
   const openings = useOpeningSearch({ kind, role, city: useDebouncedValue(city) });
+  const { gutter, column } = useLayout();
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <View style={styles.filters}>
+      <View style={[styles.filters, column, { paddingHorizontal: gutter }]}>
         <SearchField value={city} onChangeText={setCity} placeholder="Filtrar por cidade" />
         <ChipSelect
           horizontal
@@ -66,5 +75,5 @@ export function ExploreOpeningsScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background },
-  filters: { gap: spacing.md, padding: spacing.xl, paddingBottom: spacing.lg },
+  filters: { gap: spacing.md, paddingTop: spacing.xl, paddingBottom: spacing.lg },
 });

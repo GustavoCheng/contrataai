@@ -1,7 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react-native';
-import { colors, fontSize, radius, spacing, touchHeight } from '@/shared/ui';
+import { MAX_FONT_SCALE, colors, fontSize, radius, spacing, touchHeight } from '@/shared/ui';
 
 type Props = { sending: boolean; onSend: (body: string) => void };
 
@@ -24,6 +24,7 @@ export function MessageComposer({ sending, onSend }: Props) {
         placeholder="Escreva uma mensagem"
         placeholderTextColor={colors.textMuted}
         accessibilityLabel="Mensagem"
+        maxFontSizeMultiplier={MAX_FONT_SCALE}
         multiline
         maxLength={2000}
         style={styles.input}

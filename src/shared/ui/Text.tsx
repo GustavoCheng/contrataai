@@ -1,6 +1,9 @@
 import { Text as RNText, StyleSheet, type TextProps as RNTextProps } from 'react-native';
 import { colors, fontSize, fontWeight } from './theme';
 
+// Acompanha o tamanho de fonte do sistema até aqui; além disso, os layouts fixos quebrariam.
+export const MAX_FONT_SCALE = 1.5;
+
 type Variant = keyof typeof fontSize;
 type Tone = 'default' | 'body' | 'muted' | 'primary' | 'danger' | 'onPrimary';
 
@@ -28,6 +31,7 @@ export function Text({
 }: TextProps) {
   return (
     <RNText
+      maxFontSizeMultiplier={MAX_FONT_SCALE}
       style={[styles[variant], { fontWeight: fontWeight[weight], color: toneColor[tone] }, style]}
       {...props}
     />

@@ -2,7 +2,7 @@ import { Stack, useLocalSearchParams } from 'expo-router';
 import { FlatList, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useUserId } from '@/shared/hooks/useSession';
-import { Notice, QueryFallback, Text, colors, spacing } from '@/shared/ui';
+import { Notice, QueryFallback, Text, colors, spacing, useLayout } from '@/shared/ui';
 import { MessageBubble } from '../components/MessageBubble';
 import { MessageComposer } from '../components/MessageComposer';
 import { useConversation, useMessages, useSendMessage } from '../hooks/useChat';
@@ -17,6 +17,7 @@ export function ChatScreen() {
   const conversation = useConversation(id);
   const messages = useMessages(id);
   const send = useSendMessage(id);
+  const { column } = useLayout();
 
   if (!conversation.isSuccess || !messages.isSuccess) {
     return <QueryFallback queries={[conversation, messages]} />;
@@ -26,7 +27,7 @@ export function ChatScreen() {
     <SafeAreaView style={styles.safe} edges={['bottom']}>
       <Stack.Screen options={{ title: otherParty(conversation.data, userId).title }} />
       <KeyboardAvoidingView
-        style={styles.flex}
+        style={[styles.flex, column]}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={insets.top + HEADER_HEIGHT}
       >

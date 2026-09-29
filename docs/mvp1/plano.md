@@ -266,6 +266,17 @@ Pedido do usuário: apagar código e arquivos mortos, enxugar o que fica, tirar 
 - **Comentários:** ficam só os que explicam um porquê; 66 que repetiam o código e 28 cópias de explicações já feitas em outro arquivo saíram (212 → 129).
 - **Resultado:** app de 7.698 para 7.283 linhas, funções e scripts de 902 para 778 (sem contar os tipos gerados e os lockfiles). Verificado aqui: lint, typecheck, prettier, `functions:check` e o pacote iOS (`expo export`). Não rodados neste ambiente: `db:test` (sem Docker; as migrações e os testes não mudaram) e as duas checagens do `expo-doctor` que dependem de rede.
 
+### Responsividade e UX (29/09/2026)
+
+Pedido do usuário: app responsivo, seguindo boas práticas de UX/UI. Verificado no navegador com dados simulados, em 320, 375 e 430 pontos de largura (iPhone SE, padrão e Pro Max) e em 1024 (desktop), todas as 25 telas.
+
+- **Coluna de conteúdo** (`useLayout` em `shared/ui`): margem de 16pt em telas com menos de 360pt e 24pt nas demais; largura máxima de 640pt centralizada em telas largas (web e tablet), aplicada por `Screen`, `PagedList`, os filtros das vitrines e o chat.
+- **Tamanho de fonte do sistema:** o texto acompanha a preferência de acessibilidade até 1,5×; acima disso os layouts fixos quebrariam (`MAX_FONT_SCALE`, aplicado em `Text` e nos campos).
+- **Barra de abas:** cinco abas cabem em 320pt com o tamanho padrão do iOS (10pt) e sem margem lateral no item; "Profissionais" virou "Explorar", como no lado do profissional.
+- **Selos de status** ficam abaixo do nome nas linhas de perfil (candidaturas, candidatos da vaga) em vez de disputar a linha com o título, que truncava em 375pt; nas linhas de vaga/freela o selo encolhe e quebra linha quando falta espaço.
+- **Puxar para atualizar** nas listas e perfis (`onRefresh` do `Screen`, `PagedList`), com o indicador só durante a atualização pedida pela pessoa.
+- **QR do Pix** escala com a tela (70% da largura, até 240pt) em vez de 200pt fixos.
+
 ### Migrações depois da inicial
 `profiles_location` (sprint 2), `explore_distance` (3), `realtime_inbox` (4), `realtime_payments` (5), `review_cards` (6) e `checkpoint_codes` (código de 4 dígitos).
 

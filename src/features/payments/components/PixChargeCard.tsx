@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     backgroundColor: colors.background,
   },
-  qr: { width: 200, height: 200 },
+  qr: { width: '70%', maxWidth: 240, aspectRatio: 1 },
   waiting: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   waitingText: { flex: 1 },
 });

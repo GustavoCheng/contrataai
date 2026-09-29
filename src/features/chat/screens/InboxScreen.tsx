@@ -13,7 +13,7 @@ function InboxScreen({ area }: { area: AccountType }) {
   if (!conversations.isSuccess) return <QueryFallback queries={[conversations]} />;
 
   return (
-    <Screen edges={['top']}>
+    <Screen edges={['top']} onRefresh={conversations.refetch}>
       <ScreenTitle title="Mensagens" />
       {conversations.data.length === 0 ? (
         <EmptyState

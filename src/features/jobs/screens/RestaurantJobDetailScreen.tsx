@@ -12,7 +12,6 @@ import {
   QueryFallback,
   Screen,
   Section,
-  StatusPill,
   Text,
   spacing,
 } from '@/shared/ui';
@@ -38,6 +37,7 @@ export function RestaurantJobDetailScreen() {
   return (
     <Screen
       edges={['bottom']}
+      onRefresh={() => Promise.all([job.refetch(), applications.refetch()])}
       footer={
         isOpen && (
           <>
@@ -99,12 +99,10 @@ function ApplicantRow({ application, restaurantId, deciding, onDecide }: Applica
         title={professional.full_name}
         subtitle={`${roleLabels[professional.main_role]} · ${professional.neighborhood ?? professional.city}`}
         rating={{ average: professional.rating_avg, count: professional.rating_count }}
-        trailing={
-          <StatusPill
-            label={applicationStatusLabels[application.status]}
-            tone={applicationStatusTones[application.status]}
-          />
-        }
+        status={{
+          label: applicationStatusLabels[application.status],
+          tone: applicationStatusTones[application.status],
+        }}
         onPress={() => router.push(`/restaurant/professionals/${professional.id}`)}
       />
       {application.status === 'sent' && (

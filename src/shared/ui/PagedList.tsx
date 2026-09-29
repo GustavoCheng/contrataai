@@ -1,8 +1,9 @@
 import { FlashList } from '@shopify/flash-list';
 import type { ReactElement } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, RefreshControl, StyleSheet, View } from 'react-native';
 import { ErrorView, LoadingView } from './QueryStates';
 import { colors, spacing } from './theme';
+import { useLayout, useRefresh } from './useLayout';
 
 type PagedListProps<T> = {
   items: T[];
@@ -11,7 +12,7 @@ type PagedListProps<T> = {
   hasNextPage: boolean;
   isFetchingNextPage: boolean;
   fetchNextPage: () => void;
-  refetch: () => void;
+  refetch: () => Promise<unknown>;
   renderItem: (item: T) => ReactElement;
   keyExtractor: (item: T) => string;
   empty: ReactElement;
@@ -29,25 +30,40 @@ export function PagedList<T>({
   keyExtractor,
   empty,
 }: PagedListProps<T>) {
+  const { gutter, column } = useLayout();
+  const refresh = useRefresh(refetch);
+
   if (isPending) return <LoadingView />;
   if (error && items.length === 0) return <ErrorView message={error.message} onRetry={refetch} />;
 
   return (
-    <FlashList
-      data={items}
-      renderItem={({ item }) => renderItem(item)}
-      keyExtractor={keyExtractor}
-      contentContainerStyle={styles.content}
-      ItemSeparatorComponent={Separator}
-      ListEmptyComponent={empty}
-      onEndReached={() => hasNextPage && !isFetchingNextPage && fetchNextPage()}
-      ListFooterComponent={
-        isFetchingNextPage ? (
-          <ActivityIndicator style={styles.footer} color={colors.primary} />
-        ) : null
-      }
-      keyboardShouldPersistTaps="handled"
-    />
+    <View style={[styles.list, column]}>
+      <FlashList
+        data={items}
+        renderItem={({ item }) => renderItem(item)}
+        keyExtractor={keyExtractor}
+        contentContainerStyle={{ paddingHorizontal: gutter, paddingBottom: gutter }}
+        ItemSeparatorComponent={Separator}
+        ListEmptyComponent={empty}
+        onEndReached={() => hasNextPage && !isFetchingNextPage && fetchNextPage()}
+        ListFooterComponent={
+          isFetchingNextPage ? (
+            <ActivityIndicator style={styles.footer} color={colors.primary} />
+          ) : null
+        }
+        refreshControl={
+          refresh && (
+            <RefreshControl
+              refreshing={refresh.refreshing}
+              onRefresh={refresh.refresh}
+              tintColor={colors.primary}
+              colors={[colors.primary]}
+            />
+          )
+        }
+        keyboardShouldPersistTaps="handled"
+      />
+    </View>
   );
 }
 
@@ -56,7 +72,7 @@ function Separator() {
 }
 
 const styles = StyleSheet.create({
-  content: { paddingHorizontal: spacing.xl, paddingBottom: spacing.xl },
+  list: { flex: 1 },
   separator: { height: spacing.xxl },
   footer: { marginTop: spacing.xl },
 });

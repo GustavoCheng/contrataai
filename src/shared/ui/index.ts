@@ -20,6 +20,7 @@ export { Section } from './Section';
 export { stackScreenOptions } from './stackOptions';
 export { StatusPill, type StatusTone, toneStyles } from './StatusPill';
 export { tabBarScreenOptions, tabIcon } from './tabBarOptions';
-export { Text } from './Text';
+export { MAX_FONT_SCALE, Text } from './Text';
 export { TextField } from './TextField';
 export * from './theme';
+export { useLayout } from './useLayout';

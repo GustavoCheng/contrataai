@@ -4,7 +4,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { OpeningCard, useOpeningSearch } from '@/features/openings';
 import { useProfessionalSettings } from '@/features/professionals';
 import { useUserId } from '@/shared/hooks/useSession';
-import { EmptyState, Notice, PagedList, ScreenTitle, colors, spacing } from '@/shared/ui';
+import {
+  EmptyState,
+  Notice,
+  PagedList,
+  ScreenTitle,
+  colors,
+  spacing,
+  useLayout,
+} from '@/shared/ui';
 import { AcceptGigAction } from '../components/AcceptGigAction';
 import { PixKeyRequired } from '../components/PixKeyRequired';
 import { useAcceptGig, useMyGigApplications } from '../hooks/useGigs';
@@ -17,6 +25,7 @@ export function OpenGigsScreen() {
   const mine = useMyGigApplications(professionalId);
   const settings = useProfessionalSettings(professionalId);
   const accept = useAcceptGig(professionalId);
+  const { gutter, column } = useLayout();
   const hasPixKey = Boolean(settings.data?.payout_accounts);
   const statusByGig = new Map(
     mine.data?.map((application) => [application.gigs.id, application.status]),
@@ -24,7 +33,7 @@ export function OpenGigsScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <View style={styles.header}>
+      <View style={[styles.header, column, { paddingHorizontal: gutter }]}>
         <ScreenTitle title="Freelas" subtitle="Turnos avulsos com pagamento garantido." />
         {settings.isSuccess && !hasPixKey && <PixKeyRequired />}
         {accept.error && <Notice message={accept.error.message} />}
@@ -60,6 +69,6 @@ export function OpenGigsScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background },
-  header: { gap: spacing.md, padding: spacing.xl, paddingBottom: spacing.lg },
+  header: { gap: spacing.md, paddingTop: spacing.xl, paddingBottom: spacing.lg },
   item: { gap: spacing.md },
 });

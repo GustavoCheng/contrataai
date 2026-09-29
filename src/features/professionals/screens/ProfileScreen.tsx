@@ -20,6 +20,7 @@ export function ProfileScreen() {
   return (
     <Screen
       edges={['top']}
+      onRefresh={() => Promise.all([professional.refetch(), settings.refetch()])}
       footer={
         <>
           <Button

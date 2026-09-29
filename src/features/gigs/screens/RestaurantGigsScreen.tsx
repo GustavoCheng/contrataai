@@ -15,6 +15,7 @@ export function RestaurantGigsScreen() {
   return (
     <Screen
       edges={['top']}
+      onRefresh={gigs.refetch}
       footer={
         <Button title="Publicar freela" onPress={() => router.push('/restaurant/gigs/new')} />
       }

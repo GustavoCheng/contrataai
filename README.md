@@ -136,5 +136,6 @@ npm run db:start        # sobe o Supabase local (na 1ª vez baixa as imagens do 
 - Tipos do banco vêm de `database.types.ts` (gerado por `npm run gen:types`); nada de interface duplicada à mão.
 - Regra de negócio sensível fica no banco (constraints, triggers, RLS, RPCs) e nas Edge Functions; o app exibe e dispara ações.
 - Sem código morto, sem abstração para um caso só e sem comentário que repete o código: comentário é para explicar o porquê.
+- Toda tela usa `Screen` ou `PagedList` (`src/shared/ui`), que já cuidam da margem por largura de tela, da largura máxima na web, do teclado e do "puxar para atualizar". Texto sempre pelo `Text` compartilhado, que respeita o tamanho de fonte do sistema até 1,5×.
 - TypeScript `strict`, sem `any` nem `@ts-ignore`. Código e nomes em inglês; textos ao usuário em português do Brasil.
 - Antes de subir: `npm run lint`, `npm run typecheck`, `npx prettier --check .`, `npm run functions:check` e, com Docker, `npm run db:test`.

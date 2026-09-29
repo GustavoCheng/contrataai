@@ -4,7 +4,15 @@ import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
 import { roleOptions, type JobRole } from '@/shared/lib/labels';
-import { ChipSelect, EmptyState, PagedList, SearchField, colors, spacing } from '@/shared/ui';
+import {
+  ChipSelect,
+  EmptyState,
+  PagedList,
+  SearchField,
+  colors,
+  spacing,
+  useLayout,
+} from '@/shared/ui';
 import { ProfessionalCard } from '../components/ProfessionalCard';
 import { useProfessionalSearch } from '../hooks/useProfessionalSearch';
 
@@ -12,10 +20,11 @@ export function ExploreProfessionalsScreen() {
   const [query, setQuery] = useState('');
   const [role, setRole] = useState<JobRole | null>(null);
   const search = useProfessionalSearch({ role, query: useDebouncedValue(query) });
+  const { gutter, column } = useLayout();
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <View style={styles.filters}>
+      <View style={[styles.filters, column, { paddingHorizontal: gutter }]}>
         <SearchField value={query} onChangeText={setQuery} placeholder="Buscar por nome" />
         <ChipSelect
           horizontal
@@ -47,5 +56,5 @@ export function ExploreProfessionalsScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background },
-  filters: { gap: spacing.md, padding: spacing.xl, paddingBottom: spacing.lg },
+  filters: { gap: spacing.md, paddingTop: spacing.xl, paddingBottom: spacing.lg },
 });

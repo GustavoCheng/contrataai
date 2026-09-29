@@ -1,7 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
-import { Text } from './Text';
+import { MAX_FONT_SCALE, Text } from './Text';
 import { colors, fontSize, radius, spacing, touchHeight } from './theme';
 
 export type TextFieldProps = Omit<TextInputProps, 'style'> & {
@@ -29,6 +29,7 @@ export function TextField({ label, error, hint, secureTextEntry, ...inputProps }
       >
         <TextInput
           {...inputProps}
+          maxFontSizeMultiplier={MAX_FONT_SCALE}
           accessibilityLabel={label}
           secureTextEntry={hidden}
           placeholderTextColor={colors.textMuted}

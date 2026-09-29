@@ -15,7 +15,7 @@ export function StatusPill({ label, tone = 'neutral' }: { label: string; tone?: 
   const { background, text } = toneStyles[tone];
   return (
     <View style={[styles.pill, { backgroundColor: background }]}>
-      <Text variant="caption" weight="semibold" style={{ color: text }}>
+      <Text variant="caption" weight="semibold" style={[styles.label, { color: text }]}>
         {label}
       </Text>
     </View>
@@ -23,10 +23,13 @@ export function StatusPill({ label, tone = 'neutral' }: { label: string; tone?: 
 }
 
 const styles = StyleSheet.create({
+  // Encolhe (e quebra a linha) quando divide a linha com um texto longo em tela estreita.
   pill: {
     alignSelf: 'flex-start',
+    flexShrink: 1,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
     borderRadius: radius.pill,
   },
+  label: { textAlign: 'center' },
 });

@@ -19,7 +19,6 @@ import {
   Screen,
   ScreenTitle,
   Section,
-  StatusPill,
 } from '@/shared/ui';
 
 export function MyApplicationsScreen() {
@@ -30,7 +29,7 @@ export function MyApplicationsScreen() {
   if (!gigs.isSuccess || !jobs.isSuccess) return <QueryFallback queries={[gigs, jobs]} />;
 
   return (
-    <Screen edges={['top']}>
+    <Screen edges={['top']} onRefresh={() => Promise.all([gigs.refetch(), jobs.refetch()])}>
       <ScreenTitle title="Candidaturas" />
       {gigs.data.length === 0 && jobs.data.length === 0 && (
         <EmptyState
@@ -65,9 +64,9 @@ export function MyApplicationsScreen() {
                 }
                 placeholderIcon="storefront-outline"
                 shape="square"
-                title={`${roleLabels[gig.role]} · ${gig.restaurants.name}`}
-                subtitle={formatGigPay(gig.amount_cents, gig.starts_at, gig.ends_at)}
-                trailing={<StatusPill label={pill.label} tone={pill.tone} />}
+                title={roleLabels[gig.role]}
+                subtitle={`${gig.restaurants.name} · ${formatGigPay(gig.amount_cents, gig.starts_at, gig.ends_at)}`}
+                status={pill}
                 onPress={() => router.push(`/professional/gigs/${gig.id}`)}
               />
             );
@@ -86,18 +85,16 @@ export function MyApplicationsScreen() {
               }
               placeholderIcon="storefront-outline"
               shape="square"
-              title={`${roleLabels[job.role]} · ${job.restaurants.name}`}
-              subtitle={
+              title={roleLabels[job.role]}
+              subtitle={`${job.restaurants.name} · ${
                 job.status === 'closed'
-                  ? 'Vaga encerrada'
+                  ? 'vaga encerrada'
                   : formatSalary(job.salary_min_cents, job.salary_max_cents)
-              }
-              trailing={
-                <StatusPill
-                  label={applicationStatusLabels[status]}
-                  tone={applicationStatusTones[status]}
-                />
-              }
+              }`}
+              status={{
+                label: applicationStatusLabels[status],
+                tone: applicationStatusTones[status],
+              }}
               onPress={() => router.push(`/professional/jobs/${job.id}`)}
             />
           ))}

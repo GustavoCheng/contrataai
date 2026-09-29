@@ -15,6 +15,7 @@ export function RestaurantJobsScreen() {
   return (
     <Screen
       edges={['top']}
+      onRefresh={jobs.refetch}
       footer={<Button title="Nova vaga" onPress={() => router.push('/restaurant/jobs/new')} />}
     >
       <ScreenTitle title="Vagas" subtitle="Vagas fixas da sua loja e quem se candidatou." />
