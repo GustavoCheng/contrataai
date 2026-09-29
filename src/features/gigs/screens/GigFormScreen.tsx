@@ -16,10 +16,7 @@ export function GigFormScreen() {
   });
 
   const submit = form.handleSubmit((values) =>
-    create.mutate(
-      { restaurantId, values },
-      { onSuccess: (gigId) => router.replace(`/restaurant/gigs/${gigId}`) },
-    ),
+    create.mutate(values, { onSuccess: (gigId) => router.replace(`/restaurant/gigs/${gigId}`) }),
   );
 
   return (

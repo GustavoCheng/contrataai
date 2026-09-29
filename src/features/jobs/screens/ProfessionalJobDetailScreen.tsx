@@ -15,25 +15,27 @@ import {
   Text,
 } from '@/shared/ui';
 import { JobSummary } from '../components/JobSummary';
-import { useApplyToJob, useJob, useMyJobApplication } from '../hooks/useJobs';
+import { useApplyToJob, useJob, useMyJobApplications } from '../hooks/useJobs';
 
 /** Vaga fixa vista pelo profissional, com "Candidatar-me". */
 export function ProfessionalJobDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const professionalId = useUserId();
   const job = useJob(id);
-  const application = useMyJobApplication(id, professionalId);
+  const applications = useMyJobApplications(professionalId);
   const apply = useApplyToJob(id, professionalId);
 
-  if (job.isPending || application.isPending) return <LoadingView />;
+  if (job.isPending || applications.isPending) return <LoadingView />;
   if (job.isError) return <ErrorView message={job.error.message} onRetry={() => job.refetch()} />;
-  if (application.isError) {
-    return <ErrorView message={application.error.message} onRetry={() => application.refetch()} />;
+  if (applications.isError) {
+    return (
+      <ErrorView message={applications.error.message} onRetry={() => applications.refetch()} />
+    );
   }
 
   const restaurant = job.data.restaurants;
-  const status = application.data?.status;
-  const canApply = job.data.status === 'open' && !application.data;
+  const status = applications.data.find((application) => application.jobs.id === id)?.status;
+  const canApply = job.data.status === 'open' && !status;
 
   return (
     <Screen

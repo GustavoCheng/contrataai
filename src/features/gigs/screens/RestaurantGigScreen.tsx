@@ -39,7 +39,7 @@ export function RestaurantGigScreen() {
   const restaurantId = useUserId();
   const gig = useGig(id);
   const applications = useGigApplications(id);
-  const confirm = useConfirmGig(id, restaurantId);
+  const confirm = useConfirmGig(id);
   const charge = useGigCharge(id);
   const release = useReleaseGigPayment(id);
   // Etapa em que o código foi aberto: quando o chamado avança, o código sai da tela sozinho.

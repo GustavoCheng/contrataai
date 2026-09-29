@@ -1,10 +1,17 @@
-import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  type QueryClient,
+  skipToken,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
+import { invalidate, sharedKeys } from '@/shared/lib/query-client';
+import type { JobFormValues } from '../schemas';
 import {
   applyToJob,
   closeJob,
   decideApplication,
   getJob,
-  getMyJobApplication,
   listJobApplications,
   listMyJobApplications,
   listRestaurantJobs,
@@ -15,10 +22,16 @@ const jobKeys = {
   restaurantJobs: (restaurantId: string) => ['restaurant-jobs', restaurantId] as const,
   detail: (id: string | undefined) => ['job', id] as const,
   applications: (jobId: string) => ['job-applications', jobId] as const,
-  myApplication: (jobId: string, professionalId: string) =>
-    ['my-job-application', jobId, professionalId] as const,
-  mine: (professionalId: string) => ['my-applications', 'jobs', professionalId] as const,
+  mine: (professionalId: string) => [...sharedKeys.myApplications, 'jobs', professionalId] as const,
 };
+
+/** Depois de criar, editar ou encerrar: a lista da loja, o detalhe e a vitrine dos profissionais. */
+const invalidateJob = (queryClient: QueryClient, restaurantId: string, jobId: string) =>
+  invalidate(queryClient, [
+    jobKeys.restaurantJobs(restaurantId),
+    jobKeys.detail(jobId),
+    sharedKeys.openings,
+  ]);
 
 export function useMyJobApplications(professionalId: string) {
   return useQuery({
@@ -48,13 +61,9 @@ export function useJobApplications(jobId: string) {
 export function useSaveJob(restaurantId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: saveJob,
-    onSuccess: (jobId) =>
-      Promise.all([
-        queryClient.invalidateQueries({ queryKey: jobKeys.restaurantJobs(restaurantId) }),
-        queryClient.invalidateQueries({ queryKey: jobKeys.detail(jobId) }),
-        queryClient.invalidateQueries({ queryKey: ['openings'] }),
-      ]),
+    mutationFn: (input: { jobId: string | null; values: JobFormValues }) =>
+      saveJob({ restaurantId, ...input }),
+    onSuccess: (jobId) => invalidateJob(queryClient, restaurantId, jobId),
   });
 }
 
@@ -62,12 +71,7 @@ export function useCloseJob(jobId: string, restaurantId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: () => closeJob(jobId),
-    onSuccess: () =>
-      Promise.all([
-        queryClient.invalidateQueries({ queryKey: jobKeys.restaurantJobs(restaurantId) }),
-        queryClient.invalidateQueries({ queryKey: jobKeys.detail(jobId) }),
-        queryClient.invalidateQueries({ queryKey: ['openings'] }),
-      ]),
+    onSuccess: () => invalidateJob(queryClient, restaurantId, jobId),
   });
 }
 
@@ -76,17 +80,7 @@ export function useDecideApplication(jobId: string) {
   return useMutation({
     mutationFn: decideApplication,
     onSuccess: () =>
-      Promise.all([
-        queryClient.invalidateQueries({ queryKey: jobKeys.applications(jobId) }),
-        queryClient.invalidateQueries({ queryKey: ['conversations'] }),
-      ]),
-  });
-}
-
-export function useMyJobApplication(jobId: string, professionalId: string) {
-  return useQuery({
-    queryKey: jobKeys.myApplication(jobId, professionalId),
-    queryFn: () => getMyJobApplication(jobId, professionalId),
+      invalidate(queryClient, [jobKeys.applications(jobId), sharedKeys.conversations]),
   });
 }
 
@@ -94,10 +88,6 @@ export function useApplyToJob(jobId: string, professionalId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: () => applyToJob({ jobId, professionalId }),
-    onSuccess: () =>
-      Promise.all([
-        queryClient.invalidateQueries({ queryKey: jobKeys.myApplication(jobId, professionalId) }),
-        queryClient.invalidateQueries({ queryKey: ['my-applications'] }),
-      ]),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: sharedKeys.myApplications }),
   });
 }

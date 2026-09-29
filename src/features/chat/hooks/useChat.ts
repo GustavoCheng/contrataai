@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
+import { sharedKeys } from '@/shared/lib/query-client';
 import {
   findConversationId,
   getConversation,
@@ -12,10 +13,10 @@ import {
 } from '../services/chat.service';
 
 const chatKeys = {
-  conversations: ['conversations'] as const,
-  conversation: (id: string) => ['conversations', id] as const,
+  conversations: sharedKeys.conversations,
+  conversation: (id: string) => [...sharedKeys.conversations, id] as const,
   pair: (restaurantId: string, professionalId: string) =>
-    ['conversations', 'pair', restaurantId, professionalId] as const,
+    [...sharedKeys.conversations, 'pair', restaurantId, professionalId] as const,
   messages: (conversationId: string) => ['messages', conversationId] as const,
 };
 

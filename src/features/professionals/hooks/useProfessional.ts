@@ -1,5 +1,7 @@
-import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { pickImage } from '@/shared/lib/image-picker';
+import { invalidate, sharedKeys } from '@/shared/lib/query-client';
+import type { ProfessionalFormValues } from '../schemas';
 import {
   getProfessional,
   getProfessionalSettings,
@@ -7,21 +9,15 @@ import {
   uploadAvatar,
 } from '../services/professionals.service';
 
-const professionalKeys = {
-  profile: (id: string | undefined) => ['professional', id] as const,
-  settings: (userId: string) => ['professional-settings', userId] as const,
-};
+const settingsKey = (userId: string) => ['professional-settings', userId] as const;
 
-export function useProfessional(id: string | undefined) {
-  return useQuery({
-    queryKey: professionalKeys.profile(id),
-    queryFn: id ? () => getProfessional(id) : skipToken,
-  });
+export function useProfessional(id: string) {
+  return useQuery({ queryKey: sharedKeys.professional(id), queryFn: () => getProfessional(id) });
 }
 
 export function useProfessionalSettings(userId: string) {
   return useQuery({
-    queryKey: professionalKeys.settings(userId),
+    queryKey: settingsKey(userId),
     queryFn: () => getProfessionalSettings(userId),
   });
 }
@@ -29,12 +25,10 @@ export function useProfessionalSettings(userId: string) {
 export function useSaveProfessional(userId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: saveProfessional,
+    mutationFn: (input: { values: ProfessionalFormValues; previousPhotoPath: string | null }) =>
+      saveProfessional({ userId, ...input }),
     onSuccess: () =>
-      Promise.all([
-        queryClient.invalidateQueries({ queryKey: professionalKeys.profile(userId) }),
-        queryClient.invalidateQueries({ queryKey: professionalKeys.settings(userId) }),
-      ]),
+      invalidate(queryClient, [sharedKeys.professional(userId), settingsKey(userId)]),
   });
 }
 

@@ -40,7 +40,7 @@ function JobForm({ job }: { job: Job | null }) {
 
   const submit = form.handleSubmit((values) =>
     save.mutate(
-      { restaurantId, jobId: job?.id ?? null, values },
+      { jobId: job?.id ?? null, values },
       {
         onSuccess: (jobId) => (job ? router.back() : router.replace(`/restaurant/jobs/${jobId}`)),
       },

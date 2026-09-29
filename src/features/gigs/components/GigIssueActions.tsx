@@ -2,11 +2,12 @@ import { ConfirmButton, Notice, Section } from '@/shared/ui';
 import { useCancelGig, useOpenGigDispute } from '../hooks/useGigs';
 import { CANCELLABLE, DISPUTABLE } from '../rules';
 import type { Gig } from '../services/gigs.service';
+import type { AccountType } from '@/shared/lib/labels';
 
 const DISPUTE_HINT =
   'Se houver um problema com o freela, abra uma disputa: o valor fica retido até nossa equipe resolver.';
 
-type GigIssueActionsProps = { gig: Gig; viewer: 'restaurant' | 'professional' };
+type GigIssueActionsProps = { gig: Gig; viewer: AccountType };
 
 /** Imprevistos: o restaurante cancela até o check-in; qualquer parte abre disputa depois do Pix. */
 export function GigIssueActions({ gig, viewer }: GigIssueActionsProps) {

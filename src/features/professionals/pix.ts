@@ -1,7 +1,7 @@
 import { isValidCnpj, normalizeCnpj } from '@/shared/lib/cnpj';
 import { Constants, type Enums } from '@/shared/lib/database.types';
 
-export type PixKeyType = Enums<'pix_key_type'>;
+type PixKeyType = Enums<'pix_key_type'>;
 
 export const pixKeyTypeLabels: Record<PixKeyType, string> = {
   cpf: 'CPF',

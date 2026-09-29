@@ -1,5 +1,5 @@
-import type { Enums } from '@/shared/lib/database.types';
-import { AppError, toAppError } from '@/shared/lib/errors';
+import { AppError, toAppError, unwrap } from '@/shared/lib/errors';
+import type { AccountType } from '@/shared/lib/labels';
 import { supabase } from '@/shared/lib/supabase';
 import type {
   SignInInput,
@@ -9,31 +9,26 @@ import type {
 } from '../schemas';
 
 export async function signIn(input: SignInInput): Promise<void> {
-  const { error } = await supabase.auth.signInWithPassword(input);
-  if (error) throw await toAppError(error);
+  await unwrap(supabase.auth.signInWithPassword(input));
 }
 
 export async function signUpProfessional(input: SignUpProfessionalInput): Promise<void> {
-  const { data, error } = await supabase.auth.signUp(input);
-  if (error) throw await toAppError(error);
+  const { user } = await unwrap(supabase.auth.signUp(input));
   // Com confirmação ligada, e-mail já confirmado volta sem identidades (proteção contra enumeração).
-  if (data.user?.identities?.length === 0) throw new AppError('email_taken');
+  if (user?.identities?.length === 0) throw new AppError('email_taken');
 }
 
 /** CNPJ é validado na Receita pela Edge Function antes de a conta existir. */
 export async function registerRestaurant(input: SignUpRestaurantInput): Promise<void> {
-  const { error } = await supabase.functions.invoke('register-restaurant', { body: input });
-  if (error) throw await toAppError(error);
+  await unwrap(supabase.functions.invoke('register-restaurant', { body: input }));
 }
 
 export async function verifyEmail({ email, code }: VerifyEmailInput): Promise<void> {
-  const { error } = await supabase.auth.verifyOtp({ email, token: code, type: 'signup' });
-  if (error) throw await toAppError(error);
+  await unwrap(supabase.auth.verifyOtp({ email, token: code, type: 'signup' }));
 }
 
 export async function resendCode(email: string): Promise<void> {
-  const { error } = await supabase.auth.resend({ type: 'signup', email });
-  if (error) throw await toAppError(error);
+  await unwrap(supabase.auth.resend({ type: 'signup', email }));
 }
 
 export async function signOut(): Promise<void> {
@@ -41,12 +36,9 @@ export async function signOut(): Promise<void> {
   if (error) throw await toAppError(error);
 }
 
-export async function getAccountType(userId: string): Promise<Enums<'account_type'>> {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('account_type')
-    .eq('id', userId)
-    .single();
-  if (error) throw await toAppError(error);
-  return data.account_type;
+export async function getAccountType(userId: string): Promise<AccountType> {
+  const { account_type } = await unwrap(
+    supabase.from('profiles').select('account_type').eq('id', userId).single(),
+  );
+  return account_type;
 }

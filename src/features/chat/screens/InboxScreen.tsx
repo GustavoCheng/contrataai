@@ -12,9 +12,10 @@ import {
 } from '@/shared/ui';
 import { useConversations } from '../hooks/useChat';
 import { otherParty } from '../otherParty';
+import type { AccountType } from '@/shared/lib/labels';
 
 /** Aba "Mensagens": conversas abertas depois de cada match, a mais recente no topo. */
-export function InboxScreen({ area }: { area: 'restaurant' | 'professional' }) {
+export function InboxScreen({ area }: { area: AccountType }) {
   const userId = useUserId();
   const conversations = useConversations();
 

@@ -1,9 +1,10 @@
 import { router } from 'expo-router';
 import { Button } from '@/shared/ui';
 import { useConversationId } from '../hooks/useChat';
+import type { AccountType } from '@/shared/lib/labels';
 
 type ChatButtonProps = {
-  area: 'restaurant' | 'professional';
+  area: AccountType;
   restaurantId: string;
   professionalId: string;
 };

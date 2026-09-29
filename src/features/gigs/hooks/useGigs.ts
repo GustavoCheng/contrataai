@@ -1,11 +1,7 @@
-import {
-  type QueryClient,
-  skipToken,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
+import { type QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
+import { invalidate, sharedKeys } from '@/shared/lib/query-client';
+import type { GigFormValues } from '../schemas';
 import {
   acceptGig,
   cancelGig,
@@ -23,22 +19,22 @@ import {
 } from '../services/gigs.service';
 
 const gigKeys = {
-  restaurantGigs: (restaurantId: string) => ['restaurant-gigs', restaurantId] as const,
-  detail: (id: string | undefined) => ['gig', id] as const,
+  restaurantGigs: (restaurantId: string) => [...sharedKeys.restaurantGigs, restaurantId] as const,
   applications: (gigId: string) => ['gig-applications', gigId] as const,
-  mine: (professionalId: string) => ['my-applications', 'gigs', professionalId] as const,
+  mine: (professionalId: string) => [...sharedKeys.myApplications, 'gigs', professionalId] as const,
   checkpoint: (gigId: string, kind: CheckpointKind) => ['gig-checkpoint', gigId, kind] as const,
 };
 
 /** Depois de uma troca de estado: o detalhe e as listas que mostram o status, nas duas áreas. */
-function invalidateGig(queryClient: QueryClient, gigId: string) {
-  return Promise.all([
-    queryClient.invalidateQueries({ queryKey: gigKeys.detail(gigId) }),
-    queryClient.invalidateQueries({ queryKey: gigKeys.applications(gigId) }),
-    queryClient.invalidateQueries({ queryKey: ['restaurant-gigs'] }),
-    queryClient.invalidateQueries({ queryKey: ['my-applications', 'gigs'] }),
-  ]);
-}
+const gigStatusKeys = (gigId: string) => [
+  sharedKeys.gig(gigId),
+  gigKeys.applications(gigId),
+  sharedKeys.restaurantGigs,
+  [...sharedKeys.myApplications, 'gigs'],
+];
+
+const invalidateGig = (queryClient: QueryClient, gigId: string) =>
+  invalidate(queryClient, gigStatusKeys(gigId));
 
 export function useRestaurantGigs(restaurantId: string) {
   return useQuery({
@@ -47,8 +43,8 @@ export function useRestaurantGigs(restaurantId: string) {
   });
 }
 
-export function useGig(id: string | undefined) {
-  return useQuery({ queryKey: gigKeys.detail(id), queryFn: id ? () => getGig(id) : skipToken });
+export function useGig(id: string) {
+  return useQuery({ queryKey: sharedKeys.gig(id), queryFn: () => getGig(id) });
 }
 
 export function useGigApplications(gigId: string) {
@@ -65,7 +61,7 @@ export function useMyGigApplications(professionalId: string) {
   });
 }
 
-/** Mantém o chamado e os aceites atualizados enquanto a tela está aberta. */
+/** Mantém o chamado, os aceites e o pagamento atualizados enquanto a tela está aberta. */
 export function useGigRealtime(gigId: string) {
   const queryClient = useQueryClient();
   useEffect(
@@ -77,26 +73,17 @@ export function useGigRealtime(gigId: string) {
 export function useCreateGig(restaurantId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: createGig,
+    mutationFn: (values: GigFormValues) => createGig({ restaurantId, values }),
     onSuccess: () =>
-      Promise.all([
-        queryClient.invalidateQueries({ queryKey: gigKeys.restaurantGigs(restaurantId) }),
-        queryClient.invalidateQueries({ queryKey: ['openings'] }),
-      ]),
+      invalidate(queryClient, [gigKeys.restaurantGigs(restaurantId), sharedKeys.openings]),
   });
 }
 
-export function useConfirmGig(gigId: string, restaurantId: string) {
+export function useConfirmGig(gigId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (professionalId: string) => confirmGigProfessional({ gigId, professionalId }),
-    onSuccess: () =>
-      Promise.all([
-        queryClient.invalidateQueries({ queryKey: gigKeys.detail(gigId) }),
-        queryClient.invalidateQueries({ queryKey: gigKeys.applications(gigId) }),
-        queryClient.invalidateQueries({ queryKey: gigKeys.restaurantGigs(restaurantId) }),
-        queryClient.invalidateQueries({ queryKey: ['conversations'] }),
-      ]),
+    onSuccess: () => invalidate(queryClient, [...gigStatusKeys(gigId), sharedKeys.conversations]),
   });
 }
 
@@ -116,7 +103,7 @@ export function useCheckpoint(gigId: string, kind: CheckpointKind) {
     gcTime: 0,
     staleTime: Infinity,
     refetchInterval: ({ state }) =>
-      state.data ? Math.max(1000, Date.parse(state.data.expiresAt) - Date.now()) : false,
+      state.data ? Math.max(1000, Date.parse(state.data.expires_at) - Date.now()) : false,
   });
 }
 
@@ -142,11 +129,7 @@ export function useCancelGig(gigId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: () => cancelGig(gigId),
-    onSuccess: () =>
-      Promise.all([
-        invalidateGig(queryClient, gigId),
-        queryClient.invalidateQueries({ queryKey: ['openings'] }),
-      ]),
+    onSuccess: () => invalidate(queryClient, [...gigStatusKeys(gigId), sharedKeys.openings]),
   });
 }
 

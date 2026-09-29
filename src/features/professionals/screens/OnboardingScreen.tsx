@@ -10,9 +10,7 @@ export function OnboardingScreen() {
   const form = useProfessionalForm(null);
   const save = useSaveProfessional(userId);
 
-  const submit = form.handleSubmit((values) =>
-    save.mutate({ userId, values, previousPhotoPath: null }),
-  );
+  const submit = form.handleSubmit((values) => save.mutate({ values, previousPhotoPath: null }));
 
   return (
     <Screen footer={<Button title="Salvar perfil" loading={save.isPending} onPress={submit} />}>

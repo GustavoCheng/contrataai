@@ -24,7 +24,7 @@ function EditStoreForm({ restaurant }: { restaurant: Restaurant }) {
   const update = useUpdateStore(restaurant.id);
 
   const submit = form.handleSubmit((values) =>
-    update.mutate({ id: restaurant.id, values }, { onSuccess: () => router.back() }),
+    update.mutate(values, { onSuccess: () => router.back() }),
   );
 
   return (

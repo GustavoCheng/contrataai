@@ -1,9 +1,10 @@
 import type { Enums } from '@/shared/lib/database.types';
 import { StatusPill, type StatusTone } from '@/shared/ui';
+import type { AccountType } from '@/shared/lib/labels';
 
 type PayoutState = Enums<'payout_status'>;
 
-const labels: Record<'restaurant' | 'professional', Record<PayoutState, string>> = {
+const labels: Record<AccountType, Record<PayoutState, string>> = {
   restaurant: {
     pending: 'Transferência Pix em andamento',
     done: 'Pix enviado ao freelancer',
@@ -24,7 +25,7 @@ const tones: Record<PayoutState, StatusTone> = {
 
 type PayoutStatusProps = {
   status: PayoutState | null | undefined;
-  viewer: 'restaurant' | 'professional';
+  viewer: AccountType;
 };
 
 /** Situação da transferência Pix para o freelancer, depois da liberação. */

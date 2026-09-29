@@ -117,3 +117,21 @@ export async function toAppError(error: unknown): Promise<AppError> {
     typeof error === 'object' && error !== null && 'message' in error ? String(error.message) : '';
   return new AppError(/fetch|network/i.test(message) ? 'network' : 'unknown');
 }
+
+type Outcome = { data: unknown; error: unknown };
+type DataOf<R extends Outcome> = R extends { error: null } ? R['data'] : never;
+
+/**
+ * `data` da resposta do Supabase, ou o AppError equivalente ao `error`. `byCode` traduz códigos
+ * do Postgres com significado de negócio (ex.: '23505', registro duplicado).
+ */
+export async function unwrap<R extends Outcome>(
+  request: PromiseLike<R>,
+  byCode: Partial<Record<string, AppErrorCode>> = {},
+): Promise<DataOf<R>> {
+  const { data, error } = await request;
+  if (!error) return data as DataOf<R>;
+  const code = typeof error === 'object' && 'code' in error ? String(error.code) : '';
+  const known = byCode[code];
+  throw known ? new AppError(known) : await toAppError(error);
+}

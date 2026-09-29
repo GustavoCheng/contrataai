@@ -4,6 +4,7 @@ export type JobRole = Enums<'job_role'>;
 export type WorkShift = Enums<'work_shift'>;
 export type ApplicationStatus = Enums<'application_status'>;
 export type GigStatus = Enums<'gig_status'>;
+export type AccountType = Enums<'account_type'>;
 
 /** Ordem de exibição dos cargos (a do enum no banco). */
 export const jobRoles = Constants.public.Enums.job_role;

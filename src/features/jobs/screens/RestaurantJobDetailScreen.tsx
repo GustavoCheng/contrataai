@@ -19,7 +19,7 @@ import {
 } from '@/shared/ui';
 import { JobSummary } from '../components/JobSummary';
 import { useCloseJob, useDecideApplication, useJob, useJobApplications } from '../hooks/useJobs';
-import type { JobApplication } from '../services/jobs.service';
+import type { ApplicationDecision, JobApplication } from '../services/jobs.service';
 
 /** Vaga do próprio restaurante: candidaturas para aceitar ou recusar, editar e encerrar. */
 export function RestaurantJobDetailScreen() {
@@ -92,7 +92,7 @@ type ApplicantRowProps = {
   application: JobApplication;
   restaurantId: string;
   deciding: boolean;
-  onDecide: (status: 'accepted' | 'rejected') => void;
+  onDecide: (status: ApplicationDecision) => void;
 };
 
 function ApplicantRow({ application, restaurantId, deciding, onDecide }: ApplicantRowProps) {

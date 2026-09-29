@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { invalidate, sharedKeys } from '@/shared/lib/query-client';
 import type { ReviewValues } from '../schemas';
 import { createReview, getMyGigReview, listReviews } from '../services/reviews.service';
 
@@ -35,12 +36,12 @@ export function useCreateReview({
   return useMutation({
     mutationFn: (values: ReviewValues) => createReview({ gigId, revieweeId, values }),
     onSuccess: () =>
-      Promise.all([
-        queryClient.invalidateQueries({ queryKey: reviewKeys.mine(gigId, reviewerId) }),
-        queryClient.invalidateQueries({ queryKey: reviewKeys.list(revieweeId) }),
-        queryClient.invalidateQueries({ queryKey: ['restaurant', revieweeId] }),
-        queryClient.invalidateQueries({ queryKey: ['professional', revieweeId] }),
-        queryClient.invalidateQueries({ queryKey: ['gig', gigId] }),
+      invalidate(queryClient, [
+        reviewKeys.mine(gigId, reviewerId),
+        reviewKeys.list(revieweeId),
+        sharedKeys.restaurant(revieweeId),
+        sharedKeys.professional(revieweeId),
+        sharedKeys.gig(gigId),
       ]),
   });
 }

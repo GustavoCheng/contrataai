@@ -29,7 +29,7 @@ function EditProfileForm({ userId, settings }: { userId: string; settings: Profe
 
   const submit = form.handleSubmit((values) =>
     save.mutate(
-      { userId, values, previousPhotoPath: settings.photo_path },
+      { values, previousPhotoPath: settings.photo_path },
       { onSuccess: () => router.back() },
     ),
   );

@@ -43,7 +43,7 @@ export function CheckpointCode({ gigId, kind, professionalName }: CheckpointCode
           </Text>
           <Text variant="caption" tone="muted" style={styles.hint}>
             Diga este código para {professionalName} digitar no app. Vale até as{' '}
-            {formatTime(checkpoint.data.expiresAt)} e serve uma vez.
+            {formatTime(checkpoint.data.expires_at)} e serve uma vez.
           </Text>
         </>
       )}

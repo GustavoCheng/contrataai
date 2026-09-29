@@ -1,5 +1,7 @@
-import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { pickImage } from '@/shared/lib/image-picker';
+import { sharedKeys } from '@/shared/lib/query-client';
+import type { StoreFormValues } from '../schemas';
 import {
   addStorePhoto,
   getRestaurant,
@@ -10,15 +12,8 @@ import {
 
 const STORE_PHOTO_ASPECT: [number, number] = [4, 3];
 
-const restaurantKeys = {
-  detail: (id: string | undefined) => ['restaurant', id] as const,
-};
-
-export function useRestaurant(id: string | undefined) {
-  return useQuery({
-    queryKey: restaurantKeys.detail(id),
-    queryFn: id ? () => getRestaurant(id) : skipToken,
-  });
+export function useRestaurant(id: string) {
+  return useQuery({ queryKey: sharedKeys.restaurant(id), queryFn: () => getRestaurant(id) });
 }
 
 /** Mutations da própria loja; todas atualizam a loja em cache ao terminar. */
@@ -29,15 +24,16 @@ function useStoreMutation<Input, Output>(
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: restaurantKeys.detail(id) }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: sharedKeys.restaurant(id) }),
   });
 }
 
-export const useUpdateStore = (id: string) => useStoreMutation(id, updateStore);
+export const useUpdateStore = (id: string) =>
+  useStoreMutation(id, (values: StoreFormValues) => updateStore({ id, values }));
 
 export const useRemoveStorePhoto = (id: string) => useStoreMutation(id, removeStorePhoto);
 
-/** Abre câmera/galeria e troca a capa; cancelar não faz nada. */
+/** Abre câmera/galeria e troca a capa; cancelar não altera a loja. */
 export const useReplaceCover = (id: string) =>
   useStoreMutation(id, async (previousPath: string | null) => {
     const image = await pickImage(STORE_PHOTO_ASPECT);

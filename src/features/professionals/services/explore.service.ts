@@ -1,8 +1,8 @@
 import { pageRange } from '@/shared/hooks/usePagedQuery';
-import { toAppError } from '@/shared/lib/errors';
+import { unwrap } from '@/shared/lib/errors';
 import { normalizeSearch } from '@/shared/lib/format';
 import type { JobRole } from '@/shared/lib/labels';
-import { isPresent, requireFields } from '@/shared/lib/rows';
+import { requireRows } from '@/shared/lib/rows';
 import { supabase } from '@/shared/lib/supabase';
 
 export type ProfessionalFilters = { role: JobRole | null; query: string };
@@ -12,7 +12,7 @@ export async function searchProfessionals(filters: ProfessionalFilters, page: nu
   let request = supabase
     .from('professional_cards')
     .select(
-      'id, full_name, photo_path, main_role, neighborhood, city, state, available_for_gigs, rating_avg, rating_count, distance_km',
+      'id, full_name, photo_path, main_role, neighborhood, city, available_for_gigs, rating_avg, rating_count, distance_km',
     )
     .order('distance_km', { ascending: true, nullsFirst: false })
     .order('rating_avg', { ascending: false })
@@ -24,22 +24,15 @@ export async function searchProfessionals(filters: ProfessionalFilters, page: nu
   const query = normalizeSearch(filters.query);
   if (query) request = request.ilike('search_name', `%${query}%`);
 
-  const { data, error } = await request;
-  if (error) throw await toAppError(error);
-  return data
-    .map((row) =>
-      requireFields(row, [
-        'id',
-        'full_name',
-        'main_role',
-        'city',
-        'state',
-        'available_for_gigs',
-        'rating_avg',
-        'rating_count',
-      ]),
-    )
-    .filter(isPresent);
+  return requireRows(await unwrap(request), [
+    'id',
+    'full_name',
+    'main_role',
+    'city',
+    'available_for_gigs',
+    'rating_avg',
+    'rating_count',
+  ]);
 }
 
 export type ProfessionalCardData = Awaited<ReturnType<typeof searchProfessionals>>[number];
