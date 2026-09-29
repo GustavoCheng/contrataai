@@ -7,26 +7,30 @@ Plano do MVP, decisões e sprints: [docs/mvp1/plano.md](docs/mvp1/plano.md).
 
 ## Rodar o app
 
-Pré-requisitos: Node 20+ e o app **Expo Go** no celular.
+Funciona em qualquer computador logo depois de clonar: os dados vêm do servidor na nuvem e não há nada para configurar.
+
+Pré-requisitos: Node 20+, o app **Expo Go** no celular e uma conta gratuita em [expo.dev](https://expo.dev), a mesma no computador e no Expo Go.
 
 ```bash
 npm install
+npx expo login          # só na primeira vez
 npx expo start          # leia o QR Code com o Expo Go
 ```
 
-- Crie o `.env` a partir do `.env.example`. Ele aponta para o **servidor na nuvem**, então não é preciso Docker nem banco no computador.
-- Contas de demonstração (senha `contrataai123`): `restaurante@contrataai.dev` e `profissional@contrataai.dev` (sem perfil, para testar o onboarding). Profissionais com chave Pix: `marina@`, `rafael@`, `diego@` e `lucas@contrataai.dev`.
+- **iPhone:** o Expo Go só abre o projeto se o app e o terminal estiverem logados na **mesma conta Expo**. Cada pessoa usa a própria conta, no próprio computador. No Android o login ainda não é exigido.
 - O celular baixa o app do computador que está rodando o `npx expo start`, então os dois precisam estar na mesma rede (Wi-Fi ou o hotspot do celular). Os dados vêm da nuvem.
-- Depois de mudar o `.env`, reinicie com `npx expo start -c` (o `-c` limpa o cache).
+- Contas de demonstração (senha `contrataai123`): `restaurante@contrataai.dev` e `profissional@contrataai.dev` (sem perfil, para testar o onboarding). Profissionais com chave Pix: `marina@`, `rafael@`, `diego@` e `lucas@contrataai.dev`.
+- Para apontar o app para outro servidor, veja "Desenvolver com o Supabase local".
 
 ### Se o app não abrir no celular
 
-| O que aparece no celular                                         | Causa provável                                     | O que fazer                                                                                                                              |
-| ---------------------------------------------------------------- | -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| "Project is incompatible with this version of Expo Go"           | Expo Go desatualizado (o projeto usa o SDK 57)     | Atualize o Expo Go na loja de apps.                                                                                                      |
-| O QR não carrega, fica em "Opening project" ou dá tempo esgotado | Redes diferentes, ou firewall/antivírus bloqueando | Coloque celular e computador no mesmo Wi-Fi. No firewall (Windows ou antivírus), marque a rede como doméstica/confiável e libere o Node. |
-| O app abre, mas mostra "Sem conexão com o servidor"              | Celular sem internet, ou projeto na nuvem pausado  | Confira a internet do celular. No plano gratuito, o Supabase pausa o projeto após 7 dias sem uso: reative no painel.                     |
-| Funciona em casa, mas não em Wi-Fi público ou de empresa         | A rede isola os aparelhos entre si                 | Ligue o roteador Wi-Fi (hotspot) do celular e conecte o computador nele.                                                                 |
+| O que aparece no celular                                         | Causa provável                                             | O que fazer                                                                                                                                      |
+| ---------------------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| "Project is incompatible with this version of Expo Go"           | Expo Go desatualizado (o projeto usa o SDK 57)             | Atualize o Expo Go na loja de apps.                                                                                                              |
+| No iPhone, o projeto não abre ou pede login                      | Expo Go e terminal em contas Expo diferentes, ou sem login | Entre na mesma conta nos dois: `npx expo login` no terminal e a aba de perfil do Expo Go.                                                        |
+| O QR não carrega, fica em "Opening project" ou dá tempo esgotado | Redes diferentes, ou firewall/antivírus bloqueando         | Coloque celular e computador no mesmo Wi-Fi. No firewall (Windows ou antivírus), marque a rede como doméstica/confiável e libere o Node.         |
+| Funciona em casa, mas não em Wi-Fi público ou de empresa         | A rede isola os aparelhos entre si                         | Ligue o roteador Wi-Fi (hotspot) do celular e conecte o computador nele, ou rode `npx expo start --tunnel` (alguns antivírus bloqueiam o túnel). |
+| O app abre, mas mostra "Sem conexão com o servidor"              | Celular sem internet, ou projeto na nuvem pausado          | Confira a internet do celular. No plano gratuito, o Supabase pausa o projeto após 7 dias sem uso: reative no painel.                             |
 
 ## Servidor na nuvem
 
@@ -61,9 +65,9 @@ npx eas-cli@latest login                                        # conta gratuita
 npx eas-cli@latest build --platform android --profile preview   # gera um APK para Android
 ```
 
-No fim (10 a 20 minutos), o comando mostra um link e um QR Code para instalar no celular Android. Quem receber o link instala sem precisar de conta. No iPhone, o app instalável exige a conta de desenvolvedor da Apple (paga); até lá, o iPhone testa pelo Expo Go.
+No fim (10 a 20 minutos), o comando mostra um link e um QR Code para instalar no celular Android. Quem receber o link instala sem precisar de conta. No iPhone, o app instalável exige a conta de desenvolvedor da Apple (US$ 99 por ano) e chega pelo TestFlight; até lá, o iPhone testa pelo Expo Go.
 
-O perfil `preview` do `eas.json` já aponta para o servidor na nuvem.
+Os dois perfis do `eas.json` montam o app com o servidor na nuvem, que é o padrão do código.
 
 ## Pagamentos no sandbox do Asaas
 
@@ -85,7 +89,7 @@ Para mexer no banco ou nas funções sem afetar a nuvem. Pré-requisito: Docker 
 npm run db:start        # sobe o Supabase local (na 1ª vez baixa as imagens do Docker)
 ```
 
-- Crie um `.env.local` com o endereço e a chave locais (o modelo está no `.env.example`). Ele tem prioridade sobre o `.env`; apague-o para voltar à nuvem.
+- Crie um `.env.local` com o endereço e a chave locais (o modelo está no `.env.example`) e reinicie com `npx expo start -c`. Apague-o para voltar à nuvem.
 - Não precisa colocar o IP do computador: no celular, o app troca `127.0.0.1` pelo endereço de quem está rodando o `npx expo start`, em qualquer rede.
 - Crie o `supabase/functions/.env` a partir do `supabase/functions/.env.example`.
 - Os e-mails do ambiente local, com o código de confirmação de 6 dígitos, chegam no **Mailpit**: http://127.0.0.1:54324
@@ -124,3 +128,13 @@ npm run db:start        # sobe o Supabase local (na 1ª vez baixa as imagens do 
 - `supabase/tests/` — testes do banco.
 - `scripts/` — checagem das Edge Functions, sandbox do Asaas e configuração da nuvem.
 - `eas.json` — perfis de montagem do app instalável.
+
+## Convenções de código
+
+- Organização por feature (`src/features/<nome>/`), em camadas: tela (compõe e navega) → hook (estado, TanStack Query) → serviço (chamadas ao Supabase). Componente não importa `supabase`.
+- O que 2+ features usam vai para `src/shared/`; o que só uma usa fica nela.
+- Tipos do banco vêm de `database.types.ts` (gerado por `npm run gen:types`); nada de interface duplicada à mão.
+- Regra de negócio sensível fica no banco (constraints, triggers, RLS, RPCs) e nas Edge Functions; o app exibe e dispara ações.
+- Sem código morto, sem abstração para um caso só e sem comentário que repete o código: comentário é para explicar o porquê.
+- TypeScript `strict`, sem `any` nem `@ts-ignore`. Código e nomes em inglês; textos ao usuário em português do Brasil.
+- Antes de subir: `npm run lint`, `npm run typecheck`, `npx prettier --check .`, `npm run functions:check` e, com Docker, `npm run db:test`.

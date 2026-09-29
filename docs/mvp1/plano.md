@@ -1,7 +1,7 @@
 # ContrataAí — Plano do MVP1
 
 > **Status:** aprovado em 24/09/2026, com as respostas da §5. **Sprints 1 a 6 concluídas: MVP1 completo** (25/09/2026).
-> A fonte de verdade do banco agora é `supabase/migrations/`. O [schema.sql](schema.sql) é a versão aprovada, guardada como histórico.
+> A fonte de verdade do banco é `supabase/migrations/`; a migração inicial é o schema aprovado.
 
 ---
 
@@ -23,7 +23,7 @@
 | Pagamento | **Asaas** (Pix) | Único dos três com API de transferência Pix para qualquer chave: o freelancer não precisa abrir conta. Mercado Pago exige assinatura Ed25519 com cadastro manual para payouts; Stripe não faz Pix de saída para terceiros no Brasil |
 | Qualidade | ESLint (`eslint-config-expo`) + Prettier + `tsc --noEmit`; testes pgTAP no banco | RLS e transições de estado são a parte crítica: testadas onde vivem |
 
-**Design** (skill `mobile-app-ui-design`)
+**Design**
 - Fonte do sistema (SF Pro/Roboto), 4 tamanhos (28/20/16/13) e 2 pesos (400/600). Valores em dinheiro com `tabular-nums`.
 - 60/30/10: fundo branco e cinza-claro, texto quase preto, destaque coral `#C24020` só em CTAs e indicadores (a cor é 1 token). O coral foi escurecido em relação ao `#E4572E` original para passar no contraste AA: texto branco no botão (5,2:1) e texto coral no fundo coral-claro dos botões secundários e selos (4,6:1).
 - Espaçamento 4/8/12/16/24/32/48; cards com raio 16 e sombra suave; alvos de toque ≥ 44pt; ação principal no rodapé (zona do polegar).
@@ -75,14 +75,14 @@ contrataai/
 │       └── hooks/                   # useSession
 ├── supabase/
 │   ├── config.toml
-│   ├── migrations/                  # o schema.sql aprovado vira a migração inicial
+│   ├── migrations/                  # schema, RLS e regras do banco; a inicial é o schema aprovado
 │   ├── seed.sql                     # restaurantes, profissionais e vagas de exemplo
 │   ├── tests/                       # pgTAP: RLS e máquina de estados
 │   └── functions/
 │       ├── _shared/                 # asaas.ts, brasil-api.ts, cep.ts, gig.ts, http.ts, database.types.ts
 │       └── register-restaurant/ · lookup-cep/ · create-gig-charge/ · asaas-webhook/
 │           release-gig-payment/ · cancel-gig/
-├── .env.example                     # EXPO_PUBLIC_SUPABASE_URL, EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+├── .env.example                     # só para trocar de servidor (Supabase local); o padrão é a nuvem
 └── app.json · package.json · tsconfig.json (strict, alias @/*) · eslint.config.js · .prettierrc
 ```
 
@@ -94,7 +94,7 @@ contrataai/
 
 ## 2. Schema Postgres + RLS
 
-Arquivo completo: **[schema.sql](schema.sql)**.
+Arquivo completo: `supabase/migrations/20260924233610_init.sql`.
 
 ### Tabelas e relações
 - `profiles` 1:1 `auth.users`: tipo de conta. Criado por trigger no cadastro.
@@ -223,14 +223,14 @@ Toda sprint termina com `npx expo start` sem erro de tipo ou lint e com um rotei
 
 ### Depois do MVP — ajustes de ambiente (29/09/2026)
 
-- **Sem IP no `.env`:** o `.env` fica com `http://127.0.0.1:54321` e, em desenvolvimento no celular, o app troca esse endereço pelo do computador que está servindo o app (`Constants.expoConfig.hostUri`). Antes, o IP do computador ficava escrito no `.env` e o app parava no celular quando o roteador entregava outro IP. Em produção (URL do projeto Supabase) nada é trocado.
+- **Sem IP no `.env`:** para o Supabase local, o `.env.local` fica com `http://127.0.0.1:54321` e, em desenvolvimento no celular, o app troca esse endereço pelo do computador que está servindo o app (`Constants.expoConfig.hostUri`). Antes, o IP do computador ficava escrito no `.env` e o app parava no celular quando o roteador entregava outro IP. Em produção (URL do projeto Supabase) nada é trocado.
 - **Formatação compatível com o motor do celular (Hermes):** o formatador de moeda informa mínimo e máximo de casas juntos, e a busca remove acentos por faixa de caracteres em vez de `p{M}`.
 
 ### Servidor na nuvem (29/09/2026)
 
 Pedido do usuário: rodar o app de qualquer lugar, com o Asaas ainda no sandbox.
 
-- **Projeto Supabase `contrataai`** (`pxpghoicyyraezfokxlc`, São Paulo, plano gratuito). O `.env` do app aponta para ele; o Supabase local vira opção de desenvolvimento, ligada por um `.env.local`.
+- **Projeto Supabase `contrataai`** (`pxpghoicyyraezfokxlc`, São Paulo, plano gratuito). O app aponta para ele por padrão; o Supabase local vira opção de desenvolvimento, ligada por um `.env.local`.
 - **Banco idêntico ao local:** as 6 migrações foram aplicadas na ordem e o histórico na nuvem usa as mesmas versões dos arquivos, então `supabase db push` continua valendo. A conferência comparou tabelas, policies, funções, triggers, views, permissões, índices e constraints dos dois bancos.
 - **Dados de demonstração na nuvem:** o mesmo `seed.sql`, com os freelas espalhados em duas semanas (o ambiente da nuvem não é recriado todo dia). As contas têm senha conhecida e saem antes do lançamento.
 - **Asaas no sandbox**, por decisão do usuário. Os segredos vão para a nuvem pelo `npm run cloud:setup`, que também cadastra o webhook no Asaas.
