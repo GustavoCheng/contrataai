@@ -1,3 +1,10 @@
+import { type AuthConfig, type SupabaseContext, withSupabase } from '@supabase/server';
+import type { z } from 'zod';
+import type { Database } from './database.types.ts';
+
+export type Context = SupabaseContext<Database>;
+export type Admin = Context['supabaseAdmin'];
+
 /** Erro de negócio com código estável; o app traduz o código para a mensagem em português. */
 export class HttpError extends Error {
   constructor(
@@ -9,33 +16,33 @@ export class HttpError extends Error {
   }
 }
 
-/** Id de quem chamou (modo de auth 'user' do withSupabase). */
-export function callerId(ctx: { userClaims: { id: string } | null }): string {
-  if (!ctx.userClaims) throw new HttpError(401, 'unauthorized');
-  return ctx.userClaims.id;
-}
-
-/** Corpo `{ gigId }`, comum às funções do fluxo do freela. */
-export async function readGigId(req: Request): Promise<string> {
-  const body: unknown = await req.json().catch(() => null);
-  const gigId = typeof body === 'object' && body && 'gigId' in body ? body.gigId : null;
-  if (typeof gigId !== 'string' || !UUID.test(gigId)) throw new HttpError(400, 'invalid_input');
-  return gigId;
-}
-
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-/** Envolve o handler para que todo erro vire uma resposta JSON `{ code, ...details }`. */
-export function handleErrors<Ctx>(handler: (req: Request, ctx: Ctx) => Promise<Response>) {
-  return async (req: Request, ctx: Ctx): Promise<Response> => {
-    try {
-      return await handler(req, ctx);
-    } catch (error) {
-      if (error instanceof HttpError) {
-        return Response.json({ code: error.code, ...error.details }, { status: error.status });
+/** Entrada de uma função: clientes do Supabase no ctx e todo erro como JSON `{ code, ...details }`. */
+export function handle(
+  auth: AuthConfig,
+  handler: (req: Request, ctx: Context) => Promise<Response>,
+) {
+  return {
+    fetch: withSupabase<Database>({ auth }, async (req, ctx) => {
+      try {
+        return await handler(req, ctx);
+      } catch (error) {
+        if (error instanceof HttpError) {
+          return Response.json({ code: error.code, ...error.details }, { status: error.status });
+        }
+        console.error(error);
+        return Response.json({ code: 'internal_error' }, { status: 500 });
       }
-      console.error(error);
-      return Response.json({ code: 'internal_error' }, { status: 500 });
-    }
+    }),
   };
+}
+
+/** Corpo JSON validado pelo schema. */
+export async function readBody<T>(
+  req: Request,
+  schema: z.ZodType<T>,
+  error = new HttpError(400, 'invalid_input'),
+): Promise<T> {
+  const body = schema.safeParse(await req.json().catch(() => null));
+  if (!body.success) throw error;
+  return body.data;
 }

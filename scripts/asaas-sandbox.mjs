@@ -1,5 +1,5 @@
 // Faz no sandbox do Asaas o que, em produção, acontece fora do app. Vale para o servidor que o
-// app está usando (nuvem pelo .env, ou o local se existir um .env.local):
+// app está usando (a nuvem por padrão, ou o local se existir um .env.local):
 //   npm run sandbox:pay     -> paga o Pix pendente mais recente
 //   npm run sandbox:payout  -> conclui o repasse mais recente
 // O aviso ao servidor (webhook) sai daqui: o Asaas não alcança o servidor local e, no sandbox,

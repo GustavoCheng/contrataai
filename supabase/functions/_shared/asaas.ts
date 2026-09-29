@@ -73,7 +73,7 @@ export async function createPixCharge(charge: {
 
 export async function getPixQrCode(chargeId: string) {
   return request(
-    z.object({ payload: z.string(), encodedImage: z.string(), expirationDate: z.string() }),
+    z.object({ payload: z.string(), encodedImage: z.string() }),
     'GET',
     `/payments/${chargeId}/pixQrCode`,
   );

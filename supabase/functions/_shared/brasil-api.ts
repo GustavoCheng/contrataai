@@ -1,13 +1,5 @@
 import { z } from 'zod';
-import { lookupCep } from './cep.ts';
-import { HttpError } from './http.ts';
-
-const TIMEOUT_MS = 8000;
-
-const optionalText = z
-  .string()
-  .nullish()
-  .transform((value) => value?.trim() || null);
+import { getJson, lookupCep, optionalText } from './cep.ts';
 
 const companySchema = z.object({
   razao_social: z.string(),
@@ -42,23 +34,9 @@ export interface Company {
 
 /** Consulta o CNPJ na Receita (via BrasilAPI) e completa o endereço pelo CEP. */
 export async function fetchCompany(cnpj: string): Promise<Company> {
-  let response: Response;
-  try {
-    response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`, {
-      signal: AbortSignal.timeout(TIMEOUT_MS),
-    });
-  } catch (error) {
-    console.error('CNPJ', error);
-    throw new HttpError(502, 'cnpj_lookup_failed');
-  }
-  if (response.status === 404) throw new HttpError(422, 'cnpj_not_found');
-  if (response.status === 400) throw new HttpError(422, 'cnpj_invalid');
-  if (!response.ok) {
-    console.error('CNPJ', response.status, (await response.text()).slice(0, 300));
-    throw new HttpError(502, 'cnpj_lookup_failed');
-  }
-
-  const data = companySchema.parse(await response.json());
+  const data = companySchema.parse(
+    await getJson(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`, 'cnpj'),
+  );
   const postalCode = data.cep?.replace(/\D/g, '') || null;
   // Pelo CEP vêm acentos e coordenadas; se falhar, fica o endereço da Receita sem coordenadas.
   const cep = postalCode ? await lookupCep(postalCode).catch(() => null) : null;

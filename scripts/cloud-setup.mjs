@@ -17,7 +17,7 @@ const EVENTS = [
 
 if (isLocalSupabase) {
   throw new Error(
-    'O app está apontando para o Supabase local. Apague o .env.local e rode de novo.',
+    'O app está apontando para o Supabase local. Apague o .env ou .env.local e rode de novo.',
   );
 }
 for (const name of ['ASAAS_API_URL', 'ASAAS_API_KEY', 'ASAAS_WEBHOOK_TOKEN']) {

@@ -1,11 +1,6 @@
-import '@supabase/functions-js/edge-runtime.d.ts';
-import { type SupabaseContext, withSupabase } from '@supabase/server';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import { z } from 'zod';
-import { refundCharge } from '../_shared/asaas.ts';
-import type { Database } from '../_shared/database.types.ts';
-import { moveGig } from '../_shared/gig.ts';
-import { handleErrors, HttpError } from '../_shared/http.ts';
+import { moveGig, refundPayment } from '../_shared/gig.ts';
+import { type Admin, handle, HttpError, readBody } from '../_shared/http.ts';
 
 const eventSchema = z.object({
   event: z.string(),
@@ -14,42 +9,33 @@ const eventSchema = z.object({
 });
 
 /**
- * Eventos do Asaas. Autenticado pelo token do webhook (header asaas-access-token).
- * O Asaas entrega "pelo menos uma vez": cada atualização só vale a partir do estado esperado.
+ * Eventos do Asaas, autenticados pelo token do webhook (header asaas-access-token). O Asaas
+ * entrega "pelo menos uma vez": o Pix recebido só vale a partir de "pendente" e os demais
+ * eventos gravam um estado final, então um evento repetido não muda nada.
  */
-export default {
-  fetch: withSupabase<Database>(
-    { auth: 'none' },
-    handleErrors(async (req, ctx: SupabaseContext<Database>) => {
-      const expected = Deno.env.get('ASAAS_WEBHOOK_TOKEN');
-      const received = req.headers.get('asaas-access-token');
-      if (!expected || !received || !sameToken(received, expected)) {
-        throw new HttpError(401, 'unauthorized');
-      }
+export default handle('none', async (req, ctx) => {
+  const expected = Deno.env.get('ASAAS_WEBHOOK_TOKEN');
+  const received = req.headers.get('asaas-access-token');
+  if (!expected || !received || !sameToken(received, expected)) {
+    throw new HttpError(401, 'unauthorized');
+  }
 
-      const body = eventSchema.safeParse(await req.json().catch(() => null));
-      if (!body.success) throw new HttpError(400, 'invalid_input');
-      const { event, payment, transfer } = body.data;
-      const admin = ctx.supabaseAdmin;
+  const { event, payment, transfer } = await readBody(req, eventSchema);
+  const admin = ctx.supabaseAdmin;
 
-      if ((event === 'PAYMENT_RECEIVED' || event === 'PAYMENT_CONFIRMED') && payment) {
-        await onPaymentReceived(admin, payment.id);
-      } else if (event === 'PAYMENT_REFUNDED' && payment) {
-        await admin.from('payments').update({ status: 'refunded' }).eq('charge_id', payment.id);
-      } else if (event === 'TRANSFER_DONE' && transfer) {
-        await admin.from('payments').update({ payout_status: 'done' }).eq('payout_id', transfer.id);
-      } else if ((event === 'TRANSFER_FAILED' || event === 'TRANSFER_CANCELLED') && transfer) {
-        await admin
-          .from('payments')
-          .update({ payout_status: 'failed' })
-          .eq('payout_id', transfer.id);
-      }
-      return Response.json({ received: true });
-    }),
-  ),
-};
+  if ((event === 'PAYMENT_RECEIVED' || event === 'PAYMENT_CONFIRMED') && payment) {
+    await onPaymentReceived(admin, payment.id);
+  } else if (event === 'PAYMENT_REFUNDED' && payment) {
+    await admin.from('payments').update({ status: 'refunded' }).eq('charge_id', payment.id);
+  } else if (event === 'TRANSFER_DONE' && transfer) {
+    await admin.from('payments').update({ payout_status: 'done' }).eq('payout_id', transfer.id);
+  } else if ((event === 'TRANSFER_FAILED' || event === 'TRANSFER_CANCELLED') && transfer) {
+    await admin.from('payments').update({ payout_status: 'failed' }).eq('payout_id', transfer.id);
+  }
+  return Response.json({ received: true });
+});
 
-async function onPaymentReceived(admin: SupabaseClient<Database>, chargeId: string) {
+async function onPaymentReceived(admin: Admin, chargeId: string) {
   const { data: payment, error } = await admin
     .from('payments')
     .update({ status: 'received' })
@@ -60,10 +46,9 @@ async function onPaymentReceived(admin: SupabaseClient<Database>, chargeId: stri
   if (error) throw error;
   if (!payment) return; // evento repetido ou cobrança que não é nossa
 
+  // O chamado foi cancelado enquanto o Pix era pago: o dinheiro volta ao restaurante.
   if (!(await moveGig(admin, payment.gig_id, 'confirmed', 'paid_held'))) {
-    // O chamado foi cancelado enquanto o Pix era pago: o dinheiro volta ao restaurante.
-    await refundCharge(chargeId);
-    await admin.from('payments').update({ status: 'refunded' }).eq('charge_id', chargeId);
+    await refundPayment(admin, chargeId);
   }
 }
 
