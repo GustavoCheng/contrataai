@@ -254,6 +254,18 @@ Pedido do usuário: trocar o QR Code por um código de 4 dígitos no início e n
 - **Todas as Edge Functions declaradas em `supabase/config.toml`:** a integração do Supabase com o GitHub só publica as funções declaradas.
 - **`eas.json` com os perfis `preview` (APK para Android, distribuição interna) e `production`**, os dois apontando para o servidor na nuvem. Identificador do app: `com.contrataai.app`.
 
+### Limpeza e configuração zero (29/09/2026)
+
+Pedido do usuário: apagar código e arquivos mortos, enxugar o que fica, tirar comentários que repetem o código, e deixar o repositório pronto para os colegas clonarem e rodarem em casa.
+
+- **Sem `.env`:** o app aponta para a nuvem por padrão (valores em `src/shared/lib/supabase.ts`; a chave publishable é pública) e os scripts fazem o mesmo. `.env`/`.env.local` só trocam de servidor. O `eas.json` deixou de repetir os valores.
+- **Expo Go no iPhone (SDK 57):** a Expo passou a exigir login na mesma conta no terminal (`npx expo login`) e no app. Cada colega usa a própria conta gratuita, no próprio computador. Documentado no README, com o `--tunnel` como saída para redes que isolam os aparelhos.
+- **Saíram:** `PROMPT-engenheiro-mobile.md` (descrevia o fluxo de QR Code; as regras de código viraram a seção "Convenções" do README), `mobile-app-ui-design/` (skill de terceiros copiada para o repositório), `docs/mvp1/schema.sql` (cópia histórica; as migrações são a fonte de verdade), a dependência `@supabase/functions-js` das Edge Functions (só tipos ambientes sem uso; puxava 37 pacotes para cada `deno.lock`), colunas selecionadas que nenhuma tela lia, exports e tipos sem uso (`knip`).
+- **Ficaram de propósito:** o suporte a web (`react-native-web`), que permite testar no navegador sem celular e é uma saída possível para o time de iPhone; e `.claude/launch.json`, que abre duas instâncias web para testar o fluxo restaurante ↔ profissional.
+- **Refatoração (mesmo comportamento):** `unwrap()` no lugar de 47 cópias do desembrulho de erro dos serviços; `QueryFallback` no lugar dos blocos carregando/erro das telas; `FormChipSelect` no lugar de seis blocos `Controller` iguais; `ListRow` para as listas do restaurante; `GigStage` como tabela de etapas por quem vê; chaves de cache compartilhadas (`sharedKeys`) e `invalidate()`; nas Edge Functions, `handle()`, `readBody()`, `loadOwnGig()`, `refundPayment()` e `getJson()` no lugar do que as seis funções repetiam.
+- **Comentários:** ficam só os que explicam um porquê; 66 que repetiam o código e 28 cópias de explicações já feitas em outro arquivo saíram (212 → 129).
+- **Resultado:** app de 7.698 para 7.283 linhas, funções e scripts de 902 para 778 (sem contar os tipos gerados e os lockfiles). Verificado aqui: lint, typecheck, prettier, `functions:check` e o pacote iOS (`expo export`). Não rodados neste ambiente: `db:test` (sem Docker; as migrações e os testes não mudaram) e as duas checagens do `expo-doctor` que dependem de rede.
+
 ### Migrações depois da inicial
 `profiles_location` (sprint 2), `explore_distance` (3), `realtime_inbox` (4), `realtime_payments` (5), `review_cards` (6) e `checkpoint_codes` (código de 4 dígitos).
 
