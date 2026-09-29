@@ -5,13 +5,34 @@ import { Text, colors, spacing } from '@/shared/ui';
 const STARS = [1, 2, 3, 4, 5];
 const STAR_TARGET = 44;
 
+const starsLabel = (count: number) => (count === 1 ? '1 estrela' : `${count} estrelas`);
+
+function Star({ filled, size }: { filled: boolean; size: number }) {
+  return (
+    <Ionicons
+      name={filled ? 'star' : 'star-outline'}
+      size={size}
+      color={filled ? colors.text : colors.textMuted}
+    />
+  );
+}
+
+export function ReviewStars({ rating }: { rating: number }) {
+  return (
+    <View style={styles.row} accessible accessibilityLabel={starsLabel(rating)}>
+      {STARS.map((star) => (
+        <Star key={star} filled={star <= rating} size={14} />
+      ))}
+    </View>
+  );
+}
+
 type StarRatingInputProps = {
   value: number;
   onChange: (rating: number) => void;
   error?: string;
 };
 
-/** Nota de 1 a 5 com alvos de toque de 44pt. */
 export function StarRatingInput({ value, onChange, error }: StarRatingInputProps) {
   return (
     <View style={styles.container}>
@@ -21,15 +42,11 @@ export function StarRatingInput({ value, onChange, error }: StarRatingInputProps
             key={star}
             accessibilityRole="radio"
             aria-checked={star === value}
-            accessibilityLabel={star === 1 ? '1 estrela' : `${star} estrelas`}
+            accessibilityLabel={starsLabel(star)}
             onPress={() => onChange(star)}
             style={({ pressed }) => [styles.star, pressed && styles.pressed]}
           >
-            <Ionicons
-              name={star <= value ? 'star' : 'star-outline'}
-              size={32}
-              color={star <= value ? colors.text : colors.textMuted}
-            />
+            <Star filled={star <= value} size={32} />
           </Pressable>
         ))}
       </View>

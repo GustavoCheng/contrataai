@@ -4,8 +4,7 @@ import { useUserId } from '@/shared/hooks/useSession';
 import { Button, FormTextField, Notice, Section, Text } from '@/shared/ui';
 import { useCreateReview, useMyGigReview } from '../hooks/useReviews';
 import { reviewSchema, type ReviewInput, type ReviewValues } from '../schemas';
-import { ReviewStars } from './ReviewStars';
-import { StarRatingInput } from './StarRatingInput';
+import { ReviewStars, StarRatingInput } from './Stars';
 
 type GigReviewProps = { gigId: string; revieweeId: string; revieweeName: string };
 

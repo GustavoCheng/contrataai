@@ -4,6 +4,7 @@ export { CepStatus } from './CepStatus';
 export { ChipList, ChipSelect } from './Chip';
 export { ConfirmButton } from './ConfirmButton';
 export { EmptyState } from './EmptyState';
+export { FormChipSelect } from './FormChipSelect';
 export { FormTextField } from './FormTextField';
 export { ListingCard } from './ListingCard';
 export { Notice } from './Notice';

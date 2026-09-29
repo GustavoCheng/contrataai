@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 import { imageUrl } from '@/shared/lib/storage';
 import { Button, Notice, ProfileRow, Section, Text, spacing } from '@/shared/ui';
 import { useReviews } from '../hooks/useReviews';
-import { ReviewStars } from './ReviewStars';
+import { ReviewStars } from './Stars';
 
 /** Avaliações recebidas por uma loja ou profissional, para o perfil. Sem avaliações, não aparece. */
 export function ReviewList({ revieweeId }: { revieweeId: string }) {

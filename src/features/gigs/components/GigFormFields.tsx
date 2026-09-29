@@ -1,8 +1,8 @@
-import { Controller, type UseFormReturn } from 'react-hook-form';
+import type { UseFormReturn } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 import { formatReaisInput } from '@/shared/lib/format';
 import { roleOptions } from '@/shared/lib/labels';
-import { ChipSelect, FormTextField, Section, Text, spacing } from '@/shared/ui';
+import { FormChipSelect, FormTextField, Section, spacing } from '@/shared/ui';
 import { dayOptions } from '../schedule';
 import type { GigFormInput, GigFormValues } from '../schemas';
 
@@ -12,46 +12,11 @@ export function GigFormFields({ form }: Props) {
   return (
     <>
       <Section title="Cargo">
-        <Controller
-          control={form.control}
-          name="role"
-          render={({ field, fieldState }) => (
-            <>
-              <ChipSelect
-                options={roleOptions}
-                selected={field.value ? [field.value] : []}
-                onToggle={field.onChange}
-              />
-              {fieldState.error && (
-                <Text variant="caption" tone="danger">
-                  {fieldState.error.message}
-                </Text>
-              )}
-            </>
-          )}
-        />
+        <FormChipSelect control={form.control} name="role" options={roleOptions} />
       </Section>
 
       <Section title="Dia">
-        <Controller
-          control={form.control}
-          name="day"
-          render={({ field, fieldState }) => (
-            <>
-              <ChipSelect
-                horizontal
-                options={dayOptions()}
-                selected={field.value ? [field.value] : []}
-                onToggle={field.onChange}
-              />
-              {fieldState.error && (
-                <Text variant="caption" tone="danger">
-                  {fieldState.error.message}
-                </Text>
-              )}
-            </>
-          )}
-        />
+        <FormChipSelect control={form.control} name="day" options={dayOptions()} horizontal />
       </Section>
 
       <Section title="Horário" hint="Se terminar depois da meia-noite, o fim fica no dia seguinte.">
@@ -94,7 +59,7 @@ export function GigFormFields({ form }: Props) {
   );
 }
 
-/** Máscara de horário enquanto digita: "1830" -> "18:30". */
+/** "1830" -> "18:30" enquanto digita. */
 function formatTimeInput(text: string): string {
   const digits = text.replace(/\D/g, '').slice(0, 4);
   return digits.length > 2 ? `${digits.slice(0, 2)}:${digits.slice(2)}` : digits;

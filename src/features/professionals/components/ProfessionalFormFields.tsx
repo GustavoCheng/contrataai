@@ -8,6 +8,7 @@ import { imageUrl } from '@/shared/lib/storage';
 import {
   CepStatus,
   ChipSelect,
+  FormChipSelect,
   FormTextField,
   Notice,
   Section,
@@ -69,30 +70,16 @@ export function ProfessionalFormFields({ form }: Props) {
       />
 
       <Section title="Cargo principal">
-        <Controller
+        <FormChipSelect
           control={form.control}
           name="mainRole"
-          render={({ field, fieldState }) => (
-            <>
-              <ChipSelect
-                options={roleOptions}
-                selected={field.value ? [field.value] : []}
-                onToggle={(role) => {
-                  field.onChange(role);
-                  const others = form.getValues('secondaryRoles') ?? [];
-                  form.setValue(
-                    'secondaryRoles',
-                    others.filter((other) => other !== role),
-                  );
-                }}
-              />
-              {fieldState.error && (
-                <Text variant="caption" tone="danger">
-                  {fieldState.error.message}
-                </Text>
-              )}
-            </>
-          )}
+          options={roleOptions}
+          onValueChange={(role) =>
+            form.setValue(
+              'secondaryRoles',
+              (form.getValues('secondaryRoles') ?? []).filter((other) => other !== role),
+            )
+          }
         />
       </Section>
 
@@ -171,24 +158,7 @@ export function ProfessionalFormFields({ form }: Props) {
       />
 
       <Section title="Chave Pix" hint="Obrigatória para aceitar freelas. Só você vê.">
-        <Controller
-          control={form.control}
-          name="pixKeyType"
-          render={({ field, fieldState }) => (
-            <>
-              <ChipSelect
-                options={pixKeyTypeOptions}
-                selected={field.value ? [field.value] : []}
-                onToggle={field.onChange}
-              />
-              {fieldState.error && (
-                <Text variant="caption" tone="danger">
-                  {fieldState.error.message}
-                </Text>
-              )}
-            </>
-          )}
-        />
+        <FormChipSelect control={form.control} name="pixKeyType" options={pixKeyTypeOptions} />
         <FormTextField
           control={form.control}
           name="pixKey"
