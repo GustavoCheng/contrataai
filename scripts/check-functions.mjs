@@ -1,4 +1,3 @@
-// Checa os tipos de cada Edge Function usando o import map (deno.json) dela.
 import { execSync } from 'node:child_process';
 import { existsSync, readdirSync } from 'node:fs';
 

@@ -8,7 +8,6 @@ import { ReviewStars, StarRatingInput } from './Stars';
 
 type GigReviewProps = { gigId: string; revieweeId: string; revieweeName: string };
 
-/** Depois do check-out, cada parte avalia a outra uma vez; depois disso, mostra a nota dada. */
 export function GigReview({ gigId, revieweeId, revieweeName }: GigReviewProps) {
   const reviewerId = useUserId();
   const mine = useMyGigReview(gigId, reviewerId);

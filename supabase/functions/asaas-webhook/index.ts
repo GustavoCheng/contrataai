@@ -8,11 +8,7 @@ const eventSchema = z.object({
   transfer: z.object({ id: z.string() }).optional(),
 });
 
-/**
- * Eventos do Asaas, autenticados pelo token do webhook (header asaas-access-token). O Asaas
- * entrega "pelo menos uma vez": o Pix recebido só vale a partir de "pendente" e os demais
- * eventos gravam um estado final, então um evento repetido não muda nada.
- */
+/** Token no header asaas-access-token; evento repetido não muda nada (pago só se "pendente"). */
 export default handle('none', async (req, ctx) => {
   const expected = Deno.env.get('ASAAS_WEBHOOK_TOKEN');
   const received = req.headers.get('asaas-access-token');

@@ -61,7 +61,6 @@ export function useMyGigApplications(professionalId: string) {
   });
 }
 
-/** Mantém o chamado, os aceites e o pagamento atualizados enquanto a tela está aberta. */
 export function useGigRealtime(gigId: string) {
   const queryClient = useQueryClient();
   useEffect(

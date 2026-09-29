@@ -18,7 +18,6 @@ type ListingCardProps = {
   onPress: () => void;
 };
 
-/** Card de listagem estilo Airbnb: foto grande, título, linhas de apoio e nota. */
 export function ListingCard({
   imageUri,
   placeholderIcon,

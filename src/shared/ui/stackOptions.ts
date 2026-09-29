@@ -1,6 +1,5 @@
 import { colors, fontSize, fontWeight } from './theme';
 
-/** Cabeçalho limpo e igual em todas as pilhas de telas. */
 export const stackScreenOptions = {
   headerShadowVisible: false,
   headerBackButtonDisplayMode: 'minimal',

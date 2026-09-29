@@ -8,7 +8,6 @@ type SearchFieldProps = {
   placeholder: string;
 };
 
-/** Barra de busca em pílula, com botão de limpar. */
 export function SearchField({ value, onChangeText, placeholder }: SearchFieldProps) {
   return (
     <View style={styles.box}>

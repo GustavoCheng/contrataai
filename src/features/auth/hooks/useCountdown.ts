@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 
-/** Contagem regressiva em segundos; `restart` volta ao início (ex.: após reenviar o código). */
 export function useCountdown(seconds: number) {
   const [endsAt, setEndsAt] = useState(() => Date.now() + seconds * 1000);
   const [now, setNow] = useState(() => Date.now());

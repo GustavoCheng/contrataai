@@ -15,11 +15,7 @@ const CLOUD_PUBLISHABLE_KEY = 'sb_publishable_kecDJm-fgQndd1oR6U5f8Q_shsItnvC';
 const configuredUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || CLOUD_URL;
 const publishableKey = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY || CLOUD_PUBLISHABLE_KEY;
 
-/**
- * Supabase local visto do celular: "127.0.0.1" seria o próprio aparelho. Em desenvolvimento,
- * troca pelo endereço do computador que está servindo o app (Expo), seja qual for a rede.
- * URL de produção ou com endereço explícito fica como está.
- */
+/** No celular, 127.0.0.1 seria o próprio aparelho: em desenvolvimento, usa o host do Expo. */
 function resolveUrl(url: string): string {
   const devHost = Constants.expoConfig?.hostUri?.replace(/:\d+$/, '');
   if (!__DEV__ || Platform.OS === 'web' || !devHost) return url;

@@ -18,7 +18,6 @@ export async function signUpProfessional(input: SignUpProfessionalInput): Promis
   if (user?.identities?.length === 0) throw new AppError('email_taken');
 }
 
-/** CNPJ é validado na Receita pela Edge Function antes de a conta existir. */
 export async function registerRestaurant(input: SignUpRestaurantInput): Promise<void> {
   await unwrap(supabase.functions.invoke('register-restaurant', { body: input }));
 }

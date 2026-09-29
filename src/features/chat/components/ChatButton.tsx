@@ -9,7 +9,6 @@ type ChatButtonProps = {
   professionalId: string;
 };
 
-/** Abre o chat com a outra parte; só aparece quando a conversa já existe (depois do match). */
 export function ChatButton({ area, restaurantId, professionalId }: ChatButtonProps) {
   const conversation = useConversationId(restaurantId, professionalId);
   const conversationId = conversation.data;

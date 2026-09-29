@@ -43,7 +43,6 @@ export const applicationStatusLabels: Record<ApplicationStatus, string> = {
   rejected: 'Recusada',
 };
 
-/** Tom do selo de status (ver StatusPill). */
 export const applicationStatusTones = {
   sent: 'attention',
   accepted: 'positive',

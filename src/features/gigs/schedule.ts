@@ -3,7 +3,6 @@ import { formatDay, pad } from '@/shared/lib/format';
 const toDayValue = (date: Date) =>
   `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 
-/** Próximos 14 dias para escolher com um toque: "Hoje", "Amanhã", "sex, 26/09"… */
 export function dayOptions(now = new Date()) {
   return Array.from({ length: 14 }, (_, index) => {
     const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() + index);

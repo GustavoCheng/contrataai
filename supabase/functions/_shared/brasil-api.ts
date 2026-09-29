@@ -32,7 +32,6 @@ export interface Company {
   longitude: number | null;
 }
 
-/** Consulta o CNPJ na Receita (via BrasilAPI) e completa o endereço pelo CEP. */
 export async function fetchCompany(cnpj: string): Promise<Company> {
   const data = companySchema.parse(
     await getJson(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`, 'cnpj'),
@@ -67,7 +66,7 @@ function titleCase(text: string): string {
   return text
     .split(/\s+/)
     .map((word, index) => {
-      if (/\d/.test(word)) return word; // códigos como "17A20" ficam como vieram
+      if (/\d/.test(word)) return word;
       const lower = word.toLowerCase();
       if (index > 0 && LOWERCASE_WORDS.has(lower)) return lower;
       return lower.charAt(0).toUpperCase() + lower.slice(1);

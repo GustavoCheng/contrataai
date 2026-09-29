@@ -4,10 +4,7 @@ import { handle, HttpError } from '../_shared/http.ts';
 
 const CANCELLABLE = ['open', 'confirmed', 'paid_held'] as const;
 
-/**
- * Só o restaurante cancela, até o check-in. Cobrança pendente é cancelada no Asaas;
- * se já foi paga, o estorno é integral.
- */
+/** Só o restaurante, até o check-in: cobrança pendente é cancelada; paga, estornada por inteiro. */
 export default handle('user', async (req, ctx) => {
   const admin = ctx.supabaseAdmin;
   const gig = await loadOwnGig(req, ctx);

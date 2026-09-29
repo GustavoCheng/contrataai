@@ -4,10 +4,9 @@ import { parseEnv } from 'node:util';
 
 const readEnvFile = (path) => (existsSync(path) ? parseEnv(readFileSync(path, 'utf8')) : {});
 
-/** Segredos das Edge Functions (chave do Asaas, token do webhook). */
 export const secrets = readEnvFile('supabase/functions/.env');
 
-// O mesmo servidor que o app usa: a nuvem por padrão, ou o que o .env / .env.local apontar.
+// Mesmo servidor do app: a nuvem por padrão (src/shared/lib/supabase.ts) ou o do .env/.env.local.
 const appEnv = { ...readEnvFile('.env'), ...readEnvFile('.env.local') };
 export const supabaseUrl =
   appEnv.EXPO_PUBLIC_SUPABASE_URL || 'https://pxpghoicyyraezfokxlc.supabase.co';

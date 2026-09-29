@@ -2,10 +2,7 @@ import { createPixTransfer } from '../_shared/asaas.ts';
 import { loadOwnGig, moveGig } from '../_shared/gig.ts';
 import { handle, HttpError } from '../_shared/http.ts';
 
-/**
- * Restaurante libera o pagamento depois do check-out: transferência Pix do valor retido
- * (menos a taxa da plataforma, hoje 0) para a chave do freelancer.
- */
+/** Após o check-out: Pix do valor retido (menos a taxa, hoje 0) para a chave do freelancer. */
 export default handle('user', async (req, ctx) => {
   const admin = ctx.supabaseAdmin;
   const gig = await loadOwnGig(req, ctx);

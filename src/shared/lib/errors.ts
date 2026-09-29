@@ -74,7 +74,6 @@ const authCodes: Partial<Record<string, AppErrorCode>> = {
   over_request_rate_limit: 'rate_limited',
 };
 
-/** Converte erros do Supabase (Auth, Edge Functions, PostgREST) em AppError. */
 export async function toAppError(error: unknown): Promise<AppError> {
   if (error instanceof AppError) return error;
 

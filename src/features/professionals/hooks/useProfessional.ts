@@ -32,7 +32,6 @@ export function useSaveProfessional(userId: string) {
   });
 }
 
-/** Abre câmera/galeria e já envia a foto; devolve o caminho no Storage (ou null se cancelar). */
 export function useAvatarUpload(userId: string) {
   return useMutation({
     mutationFn: async () => {

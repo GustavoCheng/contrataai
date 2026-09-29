@@ -17,7 +17,6 @@ type PagedListProps<T> = {
   empty: ReactElement;
 };
 
-/** FlashList com carregando, vazio, erro e próxima página. */
 export function PagedList<T>({
   items,
   isPending,

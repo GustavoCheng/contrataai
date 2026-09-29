@@ -13,7 +13,6 @@ type FormTextFieldProps<T extends FieldValues> = Omit<
   onValueChange?: (value: string) => void;
 };
 
-/** TextField ligado ao react-hook-form: valor, blur e mensagem de erro do schema. */
 export function FormTextField<T extends FieldValues>({
   control,
   name,

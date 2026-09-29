@@ -4,7 +4,6 @@ import { supabase } from '@/shared/lib/supabase';
 import { normalizePixKey } from '../pix';
 import type { ProfessionalFormValues } from '../schemas';
 
-/** Perfil público: o que restaurantes veem. */
 export function getProfessional(id: string) {
   return unwrap(
     supabase

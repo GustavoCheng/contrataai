@@ -5,7 +5,6 @@ import { colors, fontSize } from './theme';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
 
-/** Opções comuns das abas das duas áreas (restaurante e profissional). */
 export const tabBarScreenOptions = {
   headerShown: false,
   tabBarActiveTintColor: colors.primary,

@@ -10,7 +10,6 @@ export const storeFormSchema = z
     number: z.string().trim().max(20),
     complement: z.string().trim().max(60),
     neighborhood: z.string().trim().max(60),
-    /** Cidade, UF e coordenadas do CEP (lookup-cep); null enquanto o CEP não é encontrado. */
     address: z.custom<CepAddress | null>(),
   })
   .superRefine(
@@ -19,7 +18,6 @@ export const storeFormSchema = z
         ctx.addIssue({ code: 'custom', path: ['postalCode'], message: 'Informe um CEP válido.' });
       }
     },
-    // Roda mesmo com erros nos campos, para a pessoa ver todos de uma vez.
     { when: () => true },
   );
 

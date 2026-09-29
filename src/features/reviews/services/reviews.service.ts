@@ -5,7 +5,6 @@ import type { ReviewValues } from '../schemas';
 
 const REVIEWS_SHOWN = 20;
 
-/** Avaliações recebidas, mais recentes primeiro, com o nome e a foto de quem avaliou. */
 export async function listReviews(revieweeId: string) {
   const rows = await unwrap(
     supabase
@@ -18,7 +17,6 @@ export async function listReviews(revieweeId: string) {
   return requireRows(rows, ['id', 'rating', 'created_at', 'by_restaurant', 'reviewer_name']);
 }
 
-/** A avaliação que a pessoa já deixou neste freela, se houver. */
 export function getMyGigReview({ gigId, reviewerId }: { gigId: string; reviewerId: string }) {
   return unwrap(
     supabase

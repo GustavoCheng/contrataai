@@ -49,7 +49,6 @@ export type JobApplication = Awaited<ReturnType<typeof listJobApplications>>[num
 
 type SaveJobInput = { restaurantId: string; jobId: string | null; values: JobFormValues };
 
-/** Cria ou edita a vaga; devolve o id. */
 export async function saveJob({ restaurantId, jobId, values }: SaveJobInput): Promise<string> {
   const row = {
     role: values.role,

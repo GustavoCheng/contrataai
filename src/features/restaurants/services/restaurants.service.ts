@@ -21,7 +21,7 @@ type StorePhoto = Restaurant['restaurant_photos'][number];
 
 export async function updateStore({ id, values }: { id: string; values: StoreFormValues }) {
   const { address } = values;
-  if (!address) throw new AppError('cep_invalid'); // o schema já garante; aqui só estreita o tipo
+  if (!address) throw new AppError('cep_invalid');
 
   await unwrap(
     supabase

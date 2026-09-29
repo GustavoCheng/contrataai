@@ -19,7 +19,6 @@ type ProfileRowProps = {
   onPress?: () => void;
 };
 
-/** Linha compacta de pessoa ou loja: foto, nome, apoio e nota. */
 export function ProfileRow({
   imageUri,
   placeholderIcon,

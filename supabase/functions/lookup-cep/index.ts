@@ -9,10 +9,7 @@ const bodySchema = z.object({
     .pipe(z.string().length(8)),
 });
 
-/**
- * CEP -> endereço (com acentos) e coordenadas, para os perfis de loja e de profissional.
- * Só para usuários logados: evita que a cota do serviço de CEP seja usada por terceiros.
- */
+/** Só para logados: evita que terceiros gastem a cota do serviço de CEP. */
 export default handle('user', async (req) => {
   const { postalCode } = await readBody(req, bodySchema, new HttpError(422, 'cep_invalid'));
   return Response.json(await lookupCep(postalCode));

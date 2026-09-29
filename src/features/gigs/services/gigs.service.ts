@@ -113,11 +113,7 @@ export function listMyGigApplications(professionalId: string) {
 
 export type CheckpointKind = Enums<'checkpoint_kind'>;
 
-/**
- * Código de 4 dígitos da etapa, que o restaurante mostra e o freelancer digita: check-in com o
- * pagamento retido, check-out depois do check-in (RPC no banco). Devolve o mesmo código enquanto
- * ele valer (10 minutos); `renew` pede outro.
- */
+/** Código da etapa atual (RPC no banco): o mesmo enquanto vale (10 min); `renew` gera outro. */
 export function issueCheckpoint({ gigId, renew = false }: { gigId: string; renew?: boolean }) {
   return unwrap(supabase.rpc('issue_gig_checkpoint', { p_gig_id: gigId, p_renew: renew }).single());
 }
@@ -144,7 +140,6 @@ export async function redeemCheckpoint({
   }
 }
 
-/** Só o restaurante, até o check-in. Se o Pix já foi pago, o estorno é integral. */
 export async function cancelGig(gigId: string): Promise<void> {
   await unwrap(supabase.functions.invoke('cancel-gig', { body: { gigId } }));
 }

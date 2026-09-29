@@ -5,7 +5,6 @@ import { colors, spacing } from './theme';
 
 type CepStatusProps = { loading: boolean; error: string | null; place: string | null };
 
-/** Linha abaixo do campo de CEP: buscando, erro ou o lugar encontrado. */
 export function CepStatus({ loading, error, place }: CepStatusProps) {
   if (loading) {
     return (

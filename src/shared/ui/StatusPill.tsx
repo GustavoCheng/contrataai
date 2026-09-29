@@ -11,7 +11,6 @@ export const toneStyles: Record<StatusTone, { background: string; text: string }
   negative: { background: colors.dangerSoft, text: colors.danger },
 };
 
-/** Selo de status (candidatura, vaga, chamado). */
 export function StatusPill({ label, tone = 'neutral' }: { label: string; tone?: StatusTone }) {
   const { background, text } = toneStyles[tone];
   return (

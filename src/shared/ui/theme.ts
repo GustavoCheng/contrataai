@@ -1,7 +1,4 @@
-/**
- * Tokens de design: 60/30/10 (fundo, texto, destaque só em ações e indicadores), grade de 8pt,
- * 4 tamanhos de fonte e 2 pesos. Cores de texto usam opacidade sobre o mesmo tom.
- */
+/** 60/30/10 (destaque só em ações), grade de 8pt, 4 tamanhos e 2 pesos; texto por opacidade. */
 export const colors = {
   background: '#FFFFFF',
   surface: '#F7F7F7',

@@ -8,7 +8,6 @@ export const pageRange = (page: number): [number, number] => [
   page * PAGE_SIZE + PAGE_SIZE - 1,
 ];
 
-/** Lista paginada: busca a próxima página quando a anterior veio cheia. */
 export function usePagedQuery<T>(queryKey: QueryKey, fetchPage: (page: number) => Promise<T[]>) {
   const query = useInfiniteQuery({
     queryKey,

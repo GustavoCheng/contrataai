@@ -11,10 +11,7 @@ const bodySchema = z.object({
     .pipe(z.string().regex(/^[0-9A-Z]{12}[0-9]{2}$/)),
 });
 
-/**
- * Cadastro de restaurante: só cria a conta se o CNPJ existir e estiver ATIVO na Receita.
- * A conta nasce com e-mail não confirmado; o código de confirmação vai por e-mail.
- */
+/** Só cria a conta com CNPJ ATIVO na Receita; o e-mail nasce não confirmado (código por e-mail). */
 export default handle('publishable', async (req, ctx) => {
   const { email, password, cnpj } = await readBody(req, bodySchema);
 

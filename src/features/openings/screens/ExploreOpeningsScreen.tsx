@@ -14,7 +14,6 @@ const kindOptions = [
   { value: 'gig', label: 'Freelas' },
 ] as const satisfies readonly { value: OpeningKind; label: string }[];
 
-/** Aba "Explorar" do profissional: vagas fixas e freelas, mais perto primeiro. */
 export function ExploreOpeningsScreen() {
   const [city, setCity] = useState('');
   const [kind, setKind] = useState<OpeningKind | null>(null);

@@ -3,7 +3,6 @@ import { StyleSheet, View } from 'react-native';
 import { Text } from './Text';
 import { colors, spacing } from './theme';
 
-/** "★ 4,8 (12)" ou "★ Novo" enquanto não há avaliações. */
 export function Rating({ average, count }: { average: number; count: number }) {
   const label = count > 0 ? `${average.toFixed(1).replace('.', ',')} (${count})` : 'Novo';
   return (

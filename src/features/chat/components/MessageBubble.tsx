@@ -3,7 +3,6 @@ import { formatMessageTime } from '@/shared/lib/format';
 import { Text, colors, radius, spacing } from '@/shared/ui';
 import type { Message } from '../services/chat.service';
 
-/** Minha mensagem à direita (tom escuro), a do outro lado à esquerda (cinza claro). */
 export function MessageBubble({ message, mine }: { message: Message; mine: boolean }) {
   return (
     <View style={[styles.bubble, mine ? styles.mine : styles.theirs]}>

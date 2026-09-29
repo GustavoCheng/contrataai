@@ -21,7 +21,6 @@ export default function RootLayout() {
   );
 }
 
-/** Cada área só existe para a sessão certa: sem sessão, restaurante ou profissional. */
 function RootNavigator() {
   const { session, isLoading } = useSession();
   const accountType = useAccountType(session?.user.id);

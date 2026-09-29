@@ -8,7 +8,6 @@ import { ChipSelect, EmptyState, PagedList, SearchField, colors, spacing } from 
 import { ProfessionalCard } from '../components/ProfessionalCard';
 import { useProfessionalSearch } from '../hooks/useProfessionalSearch';
 
-/** Aba "Profissionais" do restaurante: busca por nome e filtro por cargo, mais perto primeiro. */
 export function ExploreProfessionalsScreen() {
   const [query, setQuery] = useState('');
   const [role, setRole] = useState<JobRole | null>(null);

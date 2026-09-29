@@ -28,7 +28,6 @@ type PayoutStatusProps = {
   viewer: AccountType;
 };
 
-/** Situação da transferência Pix para o freelancer, depois da liberação. */
 export function PayoutStatus({ status, viewer }: PayoutStatusProps) {
   if (!status) return null;
   return <StatusPill label={labels[viewer][status]} tone={tones[status]} />;

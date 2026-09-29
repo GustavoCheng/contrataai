@@ -3,7 +3,6 @@ import { StyleSheet, View } from 'react-native';
 import { Text } from './Text';
 import { colors, radius, spacing } from './theme';
 
-/** Aviso em linha para erros de envio de formulário. */
 export function Notice({ message }: { message: string }) {
   return (
     <View style={styles.box} accessibilityRole="alert">

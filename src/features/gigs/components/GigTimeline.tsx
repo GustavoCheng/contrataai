@@ -9,7 +9,6 @@ type Step = { label: string; at: string | null };
 /** Estados em que o caminho normal para: as próximas etapas deixam de aparecer. */
 const ENDED: GigStatus[] = ['released', 'cancelled', 'disputed'];
 
-/** Etapas do freela com data e hora; as que faltam aparecem apagadas. */
 export function GigTimeline({ gig }: { gig: Gig }) {
   const path: Step[] = [
     { label: 'Freela publicado', at: gig.created_at },

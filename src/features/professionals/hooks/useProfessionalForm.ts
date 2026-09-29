@@ -8,7 +8,6 @@ import {
 } from '../schemas';
 import type { ProfessionalSettings } from '../services/professionals.service';
 
-/** Formulário do perfil profissional, vazio no onboarding ou preenchido na edição. */
 export function useProfessionalForm(settings: ProfessionalSettings | null) {
   return useForm<ProfessionalFormInput, unknown, ProfessionalFormValues>({
     resolver: zodResolver(professionalFormSchema),

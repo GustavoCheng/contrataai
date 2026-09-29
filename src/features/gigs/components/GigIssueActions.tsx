@@ -9,7 +9,6 @@ const DISPUTE_HINT =
 
 type GigIssueActionsProps = { gig: Gig; viewer: AccountType };
 
-/** Imprevistos: o restaurante cancela até o check-in; qualquer parte abre disputa depois do Pix. */
 export function GigIssueActions({ gig, viewer }: GigIssueActionsProps) {
   const cancel = useCancelGig(gig.id);
   const dispute = useOpenGigDispute(gig.id);

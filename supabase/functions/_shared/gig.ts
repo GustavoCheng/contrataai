@@ -5,7 +5,7 @@ import { type Admin, type Context, HttpError, readBody } from './http.ts';
 
 const bodySchema = z.object({ gigId: z.guid() });
 
-/** Chamado do corpo `{ gigId }`, com o que o fluxo de pagamento precisa. Só o restaurante dono passa. */
+/** Só o restaurante dono do chamado passa daqui. */
 export async function loadOwnGig(req: Request, ctx: Context) {
   const { gigId } = await readBody(req, bodySchema);
   const { data, error } = await ctx.supabaseAdmin
@@ -39,7 +39,6 @@ export async function moveGig(
   return data.length > 0;
 }
 
-/** Estorno integral de um Pix já pago, no Asaas e no registro do pagamento. */
 export async function refundPayment(admin: Admin, chargeId: string) {
   await refundCharge(chargeId);
   await admin.from('payments').update({ status: 'refunded' }).eq('charge_id', chargeId);

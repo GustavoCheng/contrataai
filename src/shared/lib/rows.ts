@@ -1,8 +1,4 @@
-/**
- * Nos tipos gerados, toda coluna de view é anulável (o gerador não enxerga o NOT NULL das
- * tabelas de origem). `requireRows` estreita as colunas que a tabela garante, a partir do
- * próprio tipo gerado, sem redeclarar interfaces; uma linha sem elas seria bug da view e sai.
- */
+/** Colunas de view vêm anuláveis nos tipos gerados; requireRows estreita as que a tabela garante. */
 type WithRequired<T, K extends keyof T> = T & { [P in K]-?: NonNullable<T[P]> };
 
 export function requireRows<T extends object, K extends keyof T>(rows: T[], keys: readonly K[]) {

@@ -16,7 +16,6 @@ export function useRestaurant(id: string) {
   return useQuery({ queryKey: sharedKeys.restaurant(id), queryFn: () => getRestaurant(id) });
 }
 
-/** Mutations da própria loja; todas atualizam a loja em cache ao terminar. */
 function useStoreMutation<Input, Output>(
   id: string,
   mutationFn: (input: Input) => Promise<Output>,
@@ -33,7 +32,6 @@ export const useUpdateStore = (id: string) =>
 
 export const useRemoveStorePhoto = (id: string) => useStoreMutation(id, removeStorePhoto);
 
-/** Abre câmera/galeria e troca a capa; cancelar não altera a loja. */
 export const useReplaceCover = (id: string) =>
   useStoreMutation(id, async (previousPath: string | null) => {
     const image = await pickImage(STORE_PHOTO_ASPECT);

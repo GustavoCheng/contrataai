@@ -97,7 +97,6 @@ const pixKeyTypes = {
   random: 'EVP',
 } as const;
 
-/** Transferência Pix do saldo da plataforma para a chave do freelancer. */
 export async function createPixTransfer(transfer: {
   amountCents: number;
   pixKey: string;

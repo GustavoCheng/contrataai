@@ -4,7 +4,6 @@ import { Text, colors } from '@/shared/ui';
 
 const SIZE = 96;
 
-/** Foto da pessoa; sem foto, as iniciais. */
 export function Avatar({ uri, name }: { uri: string | null; name: string }) {
   if (uri) {
     return (

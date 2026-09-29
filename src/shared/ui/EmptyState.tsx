@@ -11,7 +11,6 @@ type EmptyStateProps = {
   action?: ReactNode;
 };
 
-/** Estado vazio ou de erro com orientação e, quando fizer sentido, uma ação. */
 export function EmptyState({ icon, title, description, action }: EmptyStateProps) {
   return (
     <View style={styles.container}>

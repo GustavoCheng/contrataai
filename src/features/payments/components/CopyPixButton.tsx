@@ -5,7 +5,6 @@ import { Button } from '@/shared/ui';
 
 const FEEDBACK_MS = 2500;
 
-/** Copia o Pix copia e cola para colar no app do banco. */
 export function CopyPixButton({ code }: { code: string }) {
   const [copied, setCopied] = useState(false);
 

@@ -2,7 +2,6 @@ import { router } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 import { Button, Notice, spacing } from '@/shared/ui';
 
-/** Aviso de que falta a chave Pix para aceitar freelas, com atalho para cadastrar. */
 export function PixKeyRequired() {
   return (
     <View style={styles.box}>

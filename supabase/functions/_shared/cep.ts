@@ -35,10 +35,8 @@ interface Address {
 }
 
 /**
- * CEP -> endereço com acentos e, quando possível, coordenadas do trecho do CEP.
- * Principal: AwesomeAPI, a única com coordenadas por CEP. Sem AWESOMEAPI_KEY a cota é por IP de
- * saída: basta no ambiente local, mas na nuvem o IP é compartilhado e a cota vive estourada.
- * Reserva: BrasilAPI, só com o endereço (sem coordenadas, o card não mostra a distância).
+ * AwesomeAPI, a única com coordenadas por CEP (sem AWESOMEAPI_KEY a cota é por IP e estoura na
+ * nuvem); se falhar, BrasilAPI só com o endereço, e o card fica sem distância.
  */
 export async function lookupCep(postalCode: string): Promise<Address> {
   try {
@@ -85,7 +83,6 @@ async function fromBrasilApi(postalCode: string): Promise<Address> {
   };
 }
 
-/** GET com tempo limite que traduz as falhas do serviço consultado para os códigos de erro do app. */
 export async function getJson(
   url: string,
   subject: 'cep' | 'cnpj',

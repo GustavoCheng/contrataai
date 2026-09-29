@@ -2,10 +2,7 @@ import { createPixCharge, findOrCreateCustomer, getPixQrCode } from '../_shared/
 import { loadOwnGig } from '../_shared/gig.ts';
 import { handle, HttpError } from '../_shared/http.ts';
 
-/**
- * Restaurante paga o freela confirmado: cobrança Pix no Asaas cujo valor fica retido na
- * plataforma até a liberação. Chamar de novo devolve a mesma cobrança pendente.
- */
+/** Pix com o valor retido até a liberação; chamar de novo devolve a cobrança pendente. */
 export default handle('user', async (req, ctx) => {
   const gig = await loadOwnGig(req, ctx);
   if (gig.payments?.status === 'received') throw new HttpError(409, 'already_paid');

@@ -13,7 +13,6 @@ type StatusCardProps = {
   children?: ReactNode;
 };
 
-/** Em que pé está o processo e o que vem a seguir, com as ações da etapa logo abaixo. */
 export function StatusCard({
   icon,
   title,

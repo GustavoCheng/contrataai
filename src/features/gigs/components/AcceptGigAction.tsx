@@ -8,7 +8,6 @@ type Props = {
   onAccept: () => void;
 };
 
-/** Aceite em um toque; depois do toque, mostra em que pé está. */
 export function AcceptGigAction({ status, canAccept, loading, onAccept }: Props) {
   if (status === 'sent')
     return <StatusPill label="Aceito · aguardando o restaurante" tone="attention" />;

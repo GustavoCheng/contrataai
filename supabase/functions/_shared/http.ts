@@ -16,7 +16,6 @@ export class HttpError extends Error {
   }
 }
 
-/** Entrada de uma função: clientes do Supabase no ctx e todo erro como JSON `{ code, ...details }`. */
 export function handle(
   auth: AuthConfig,
   handler: (req: Request, ctx: Context) => Promise<Response>,
@@ -36,7 +35,6 @@ export function handle(
   };
 }
 
-/** Corpo JSON validado pelo schema. */
 export async function readBody<T>(
   req: Request,
   schema: z.ZodType<T>,

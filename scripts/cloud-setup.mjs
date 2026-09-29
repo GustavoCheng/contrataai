@@ -1,7 +1,4 @@
-// Configura o servidor na nuvem. Rode depois de "npx supabase login":
-//   1. envia os segredos de supabase/functions/.env para as Edge Functions;
-//   2. cadastra (ou atualiza) no Asaas o webhook que avisa o servidor dos pagamentos.
-// Pode rodar de novo sempre que mudar um segredo.
+// Segredos e webhook do Asaas na nuvem; rode após "npx supabase login" e a cada segredo novo.
 import { execSync } from 'node:child_process';
 import { asaas, isLocalSupabase, secrets, supabaseUrl, webhookUrl } from './lib.mjs';
 
