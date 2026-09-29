@@ -25,7 +25,7 @@ import {
   Text,
   spacing,
 } from '@/shared/ui';
-import { CheckpointQr } from '../components/CheckpointQr';
+import { CheckpointCode } from '../components/CheckpointCode';
 import { GigIssueActions } from '../components/GigIssueActions';
 import { RestaurantGigStage } from '../components/GigStage';
 import { GigSummary } from '../components/GigSummary';
@@ -33,7 +33,7 @@ import { GigTimeline } from '../components/GigTimeline';
 import { useConfirmGig, useGig, useGigApplications, useGigRealtime } from '../hooks/useGigs';
 import { REVIEWABLE } from '../rules';
 
-/** Chamado do próprio restaurante: aceites, Pix, QR de check-in/out, liberação e histórico. */
+/** Chamado do próprio restaurante: aceites, Pix, código de check-in/out, liberação e histórico. */
 export function RestaurantGigScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const restaurantId = useUserId();
@@ -42,8 +42,8 @@ export function RestaurantGigScreen() {
   const confirm = useConfirmGig(id, restaurantId);
   const charge = useGigCharge(id);
   const release = useReleaseGigPayment(id);
-  // Etapa em que o QR foi aberto: quando o chamado avança, o QR sai da tela sozinho.
-  const [qrStage, setQrStage] = useState<GigStatus | null>(null);
+  // Etapa em que o código foi aberto: quando o chamado avança, o código sai da tela sozinho.
+  const [codeStage, setCodeStage] = useState<GigStatus | null>(null);
   useGigRealtime(id);
 
   if (gig.isPending || applications.isPending) return <LoadingView />;
@@ -60,7 +60,7 @@ export function RestaurantGigScreen() {
   const amount = formatMoney(gig.data.amount_cents);
   const checkpoint =
     status === 'paid_held' ? 'check_in' : status === 'checked_in' ? 'check_out' : null;
-  const showQr = checkpoint !== null && qrStage === status;
+  const showCode = checkpoint !== null && codeStage === status;
   const error = confirm.error ?? charge.error ?? release.error;
 
   let footer: ReactNode = null;
@@ -75,12 +75,14 @@ export function RestaurantGigScreen() {
       />
     );
   } else if (checkpoint) {
-    footer = showQr ? (
-      <Button variant="secondary" title="Esconder QR" onPress={() => setQrStage(null)} />
+    footer = showCode ? (
+      <Button variant="secondary" title="Esconder código" onPress={() => setCodeStage(null)} />
     ) : (
       <Button
-        title={checkpoint === 'check_in' ? 'Mostrar QR de check-in' : 'Mostrar QR de check-out'}
-        onPress={() => setQrStage(status)}
+        title={
+          checkpoint === 'check_in' ? 'Mostrar código de check-in' : 'Mostrar código de check-out'
+        }
+        onPress={() => setCodeStage(status)}
       />
     );
   } else if (status === 'checked_out') {
@@ -102,7 +104,13 @@ export function RestaurantGigScreen() {
 
       <RestaurantGigStage gig={gig.data}>
         {status === 'confirmed' && charge.data && <PixChargeCard charge={charge.data} />}
-        {showQr && <CheckpointQr gigId={id} kind={checkpoint} />}
+        {showCode && freelancer && (
+          <CheckpointCode
+            gigId={id}
+            kind={checkpoint}
+            professionalName={freelancer.full_name.split(' ')[0]}
+          />
+        )}
       </RestaurantGigStage>
 
       {status === 'open' && (

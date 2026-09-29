@@ -47,7 +47,23 @@ Limites conhecidos deste ambiente:
 - **Cadastro de contas novas:** o e-mail padrão do Supabase só envia para os membros da organização e manda um link no lugar do código de 6 dígitos. Para cadastrar outras pessoas, configure um SMTP próprio e o modelo de e-mail (veja "Antes de lançar"). As contas de demonstração não dependem disso.
 - **Contas de demonstração:** têm senha conhecida. Apague-as antes de usar dinheiro de verdade.
 
-Para publicar mudanças: migrações novas com `npx supabase db push` e funções com `npx supabase functions deploy` (os dois pedem o `npx supabase login` e o projeto vinculado com `npx supabase link --project-ref pxpghoicyyraezfokxlc`).
+Para publicar mudanças no servidor:
+
+- **Pelo GitHub (automático):** com a integração do Supabase com o GitHub ligada (Project Settings → Integrations, opção "Deploy to production"), todo envio para a `main` aplica as migrações novas e publica as funções declaradas em `supabase/config.toml`. Não envia segredos, não muda as configurações de login e não carrega o seed.
+- **Pelo computador:** `npx supabase db push` para as migrações e `npx supabase functions deploy` para as funções (pedem o `npx supabase login` e o projeto vinculado com `npx supabase link --project-ref pxpghoicyyraezfokxlc`).
+
+## App instalável (sem depender do computador)
+
+O Expo Go baixa o app do computador, então só funciona com os dois na mesma rede. Para usar em qualquer lugar, ou passar para outras pessoas testarem, gere o app instalável. A montagem acontece nos servidores do Expo, não no seu computador.
+
+```bash
+npx eas-cli@latest login                                        # conta gratuita em expo.dev
+npx eas-cli@latest build --platform android --profile preview   # gera um APK para Android
+```
+
+No fim (10 a 20 minutos), o comando mostra um link e um QR Code para instalar no celular Android. Quem receber o link instala sem precisar de conta. No iPhone, o app instalável exige a conta de desenvolvedor da Apple (paga); até lá, o iPhone testa pelo Expo Go.
+
+O perfil `preview` do `eas.json` já aponta para o servidor na nuvem.
 
 ## Pagamentos no sandbox do Asaas
 
@@ -59,7 +75,7 @@ O app cria cobranças, estornos e transferências de verdade no sandbox. O que a
 | `npm run sandbox:payout` | Depois de "Liberar": avisa o servidor que a transferência mais recente foi concluída. O repasse vira "Pix enviado", ao vivo. |
 
 - **Saldo do sandbox:** liberar o pagamento faz uma transferência real no sandbox, que precisa de saldo disponível. Às vezes o sandbox credita o Pix confirmado só dois dias depois. Sem saldo, o app mostra "O serviço de pagamento não respondeu" e o freela continua em "Turno encerrado". Nesse caso, teste a liberação com um freela de valor baixo ou aguarde o crédito.
-- **QR de check-in/out:** o restaurante mostra o QR em um aparelho (ou no navegador) e o freelancer lê com o Expo Go em outro, cada um logado na sua conta.
+- **Código de check-in/out:** o restaurante toca em "Mostrar código" e o freelancer digita os 4 números no app dele, cada um logado na sua conta. O código vale 10 minutos, serve uma vez e trava depois de 5 erros (o restaurante gera outro).
 
 ## Desenvolver com o Supabase local
 
@@ -96,7 +112,7 @@ npm run db:start        # sobe o Supabase local (na 1ª vez baixa as imagens do 
 4. **E-mail de cadastro:** configure um SMTP próprio (Authentication → SMTP no painel do Supabase) e, no modelo "Confirm signup", use o conteúdo de `supabase/templates/confirmation.html`, que envia o código de 6 dígitos.
 5. **Chave do serviço de CEP** (`AWESOMEAPI_KEY`), para os perfis novos terem distância nos cards.
 6. **Contas de demonstração:** apague os usuários `@contrataai.dev` no painel do Supabase (Authentication → Users).
-7. **App instalável:** o Expo Go serve para testar. Para distribuir, gere o app com o EAS Build (conta Expo).
+7. **Identificador do app:** `com.contrataai.app` (Android e iOS) em `app.json`. Troque antes da primeira publicação nas lojas se quiser outro; depois de publicado, não muda mais.
 
 ## Estrutura
 
@@ -107,3 +123,4 @@ npm run db:start        # sobe o Supabase local (na 1ª vez baixa as imagens do 
 - `supabase/functions/` — Edge Functions (integrações externas e regras sensíveis).
 - `supabase/tests/` — testes do banco.
 - `scripts/` — checagem das Edge Functions, sandbox do Asaas e configuração da nuvem.
+- `eas.json` — perfis de montagem do app instalável.

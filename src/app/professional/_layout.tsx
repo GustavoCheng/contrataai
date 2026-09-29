@@ -25,7 +25,6 @@ export default function ProfessionalLayout() {
         <Stack.Screen name="restaurants/[id]" options={{ headerShown: true, title: '' }} />
         <Stack.Screen name="jobs/[id]" options={{ headerShown: true, title: 'Vaga' }} />
         <Stack.Screen name="gigs/[id]" options={{ headerShown: true, title: 'Freela' }} />
-        <Stack.Screen name="scan" options={{ headerShown: true, title: 'Ler QR' }} />
         <Stack.Screen name="chat/[id]" options={{ headerShown: true, title: '' }} />
       </Stack.Protected>
     </Stack>

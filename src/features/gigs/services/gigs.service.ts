@@ -1,6 +1,6 @@
+import type { Enums } from '@/shared/lib/database.types';
 import { AppError, toAppError } from '@/shared/lib/errors';
 import { reaisToCents } from '@/shared/lib/format';
-import type { GigStatus } from '@/shared/lib/labels';
 import { supabase } from '@/shared/lib/supabase';
 import { toShiftDates } from '../schedule';
 import type { GigFormValues } from '../schemas';
@@ -115,29 +115,51 @@ export async function listMyGigApplications(professionalId: string) {
 
 export type MyGigApplication = Awaited<ReturnType<typeof listMyGigApplications>>[number];
 
-export type CheckpointKind = 'check_in' | 'check_out';
+export type CheckpointKind = Enums<'checkpoint_kind'>;
 
-/** Resposta da Edge Function issue-checkpoint: o token vai no QR e vale 5 minutos. */
-export type Checkpoint = { token: string; kind: CheckpointKind; expiresAt: string };
+/** Código de 4 dígitos que o restaurante mostra e o freelancer digita. */
+export type Checkpoint = { kind: CheckpointKind; code: string; expiresAt: string };
 
-/** QR que o restaurante mostra: check-in com o pagamento retido, check-out depois do check-in. */
-export async function issueCheckpoint(gigId: string): Promise<Checkpoint> {
-  const { data, error } = await supabase.functions.invoke<Checkpoint>('issue-checkpoint', {
-    body: { gigId },
-  });
-  if (error || !data) throw await toAppError(error);
-  return data;
+/**
+ * Código da etapa: check-in com o pagamento retido, check-out depois do check-in (RPC no banco).
+ * Devolve o mesmo código enquanto ele valer (10 minutos); `renew` pede outro.
+ */
+export async function issueCheckpoint({
+  gigId,
+  renew = false,
+}: {
+  gigId: string;
+  renew?: boolean;
+}): Promise<Checkpoint> {
+  const { data, error } = await supabase
+    .rpc('issue_gig_checkpoint', { p_gig_id: gigId, p_renew: renew })
+    .single();
+  if (error) throw await toAppError(error);
+  return { kind: data.kind, code: data.code, expiresAt: data.expires_at };
 }
 
-export type RedeemedCheckpoint = { gigId: string; status: GigStatus };
+const checkpointErrors = {
+  invalid_code: 'checkpoint_invalid',
+  locked: 'checkpoint_locked',
+  expired: 'checkpoint_expired',
+} as const;
 
-/** Freelancer lê o QR; o back-end confere o token e avança o chamado. */
-export async function redeemCheckpoint(token: string): Promise<RedeemedCheckpoint> {
-  const { data, error } = await supabase.functions.invoke<RedeemedCheckpoint>('redeem-checkpoint', {
-    body: { token },
+/** Freelancer confirmado digita o código; o banco confere, conta os erros e avança o freela. */
+export async function redeemCheckpoint({
+  gigId,
+  code,
+}: {
+  gigId: string;
+  code: string;
+}): Promise<void> {
+  const { data: outcome, error } = await supabase.rpc('redeem_gig_checkpoint', {
+    p_gig_id: gigId,
+    p_code: code,
   });
-  if (error || !data) throw await toAppError(error);
-  return data;
+  if (error) throw await toAppError(error);
+  if (outcome !== 'checked_in' && outcome !== 'checked_out') {
+    throw new AppError(checkpointErrors[outcome]);
+  }
 }
 
 /** Só o restaurante, até o check-in. Se o Pix já foi pago, o estorno é integral. */

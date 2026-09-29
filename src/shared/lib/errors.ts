@@ -28,10 +28,11 @@ const messages = {
   already_paid: 'Esse freela já está pago.',
   payment_provider_error: 'O serviço de pagamento não respondeu. Tente de novo em instantes.',
   checkpoint_unavailable: 'Não há check-in nem check-out pendente neste freela.',
-  checkpoint_invalid: 'QR não reconhecido. Leia o QR que aparece no app do restaurante.',
-  checkpoint_expired: 'Esse QR venceu. Peça ao restaurante para mostrar o QR de novo.',
-  checkpoint_not_yours: 'Esse QR é do freela de outro profissional.',
-  checkpoint_used: 'Esse QR já foi usado. Peça ao restaurante para mostrar o QR atual.',
+  checkpoint_invalid: 'Código incorreto. Confira os 4 números com o restaurante.',
+  checkpoint_expired:
+    'Esse código não vale mais. Peça ao restaurante para mostrar o código no app dele.',
+  checkpoint_locked: 'Muitas tentativas erradas. Peça ao restaurante para gerar um novo código.',
+  checkpoint_not_yours: 'Só o profissional confirmado neste freela pode digitar o código.',
   gig_not_releasable: 'O pagamento só pode ser liberado depois do check-out.',
   payout_account_missing:
     'O freelancer está sem chave Pix cadastrada. Peça para ele cadastrar e tente de novo.',

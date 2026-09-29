@@ -108,24 +108,33 @@ export function useAcceptGig(professionalId: string) {
   });
 }
 
-/** O token vence em 5 minutos: renova antes disso enquanto o QR está na tela. */
-const CHECKPOINT_REFRESH_MS = 4 * 60_000;
-
+/** Código que o restaurante mostra. Quando vence, a tela pede de novo e já recebe um código novo. */
 export function useCheckpoint(gigId: string, kind: CheckpointKind) {
   return useQuery({
     queryKey: gigKeys.checkpoint(gigId, kind),
-    queryFn: () => issueCheckpoint(gigId),
+    queryFn: () => issueCheckpoint({ gigId }),
     gcTime: 0,
-    staleTime: CHECKPOINT_REFRESH_MS,
-    refetchInterval: CHECKPOINT_REFRESH_MS,
+    staleTime: Infinity,
+    refetchInterval: ({ state }) =>
+      state.data ? Math.max(1000, Date.parse(state.data.expiresAt) - Date.now()) : false,
   });
 }
 
-export function useRedeemCheckpoint() {
+/** Troca o código na hora (o anterior deixa de valer), por exemplo depois de muitos erros. */
+export function useRenewCheckpoint(gigId: string, kind: CheckpointKind) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: redeemCheckpoint,
-    onSuccess: ({ gigId }) => invalidateGig(queryClient, gigId),
+    mutationFn: () => issueCheckpoint({ gigId, renew: true }),
+    onSuccess: (checkpoint) =>
+      queryClient.setQueryData(gigKeys.checkpoint(gigId, kind), checkpoint),
+  });
+}
+
+export function useRedeemCheckpoint(gigId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (code: string) => redeemCheckpoint({ gigId, code }),
+    onSuccess: () => invalidateGig(queryClient, gigId),
   });
 }
 

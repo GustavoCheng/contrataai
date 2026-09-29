@@ -1,4 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
+import { useState } from 'react';
 import { ChatButton } from '@/features/chat';
 import { useProfessionalSettings } from '@/features/professionals';
 import { GigReview } from '@/features/reviews';
@@ -7,12 +8,19 @@ import { formatPlace } from '@/shared/lib/location';
 import { imageUrl } from '@/shared/lib/storage';
 import { Button, ErrorView, LoadingView, Notice, ProfileRow, Screen, Section } from '@/shared/ui';
 import { AcceptGigAction } from '../components/AcceptGigAction';
+import { CHECKPOINT_CODE_LENGTH, CheckpointCodeField } from '../components/CheckpointCodeField';
 import { GigIssueActions } from '../components/GigIssueActions';
 import { ProfessionalGigStage } from '../components/GigStage';
 import { GigSummary } from '../components/GigSummary';
 import { GigTimeline } from '../components/GigTimeline';
 import { PixKeyRequired } from '../components/PixKeyRequired';
-import { useAcceptGig, useGig, useGigRealtime, useMyGigApplications } from '../hooks/useGigs';
+import {
+  useAcceptGig,
+  useGig,
+  useGigRealtime,
+  useMyGigApplications,
+  useRedeemCheckpoint,
+} from '../hooks/useGigs';
 import { REVIEWABLE } from '../rules';
 
 /** Freela visto pelo profissional: aceitar e, se confirmado, check-in/out e pagamento. */
@@ -23,6 +31,8 @@ export function ProfessionalGigScreen() {
   const mine = useMyGigApplications(professionalId);
   const settings = useProfessionalSettings(professionalId);
   const accept = useAcceptGig(professionalId);
+  const redeem = useRedeemCheckpoint(id);
+  const [code, setCode] = useState('');
   useGigRealtime(id);
 
   if (gig.isPending) return <LoadingView />;
@@ -33,17 +43,37 @@ export function ProfessionalGigScreen() {
   const hasPixKey = Boolean(settings.data?.payout_accounts);
   const isMine = gig.data.professional_id === professionalId;
   const isOpen = gig.data.status === 'open';
-  const scan =
-    isMine && gig.data.status === 'paid_held'
-      ? 'Ler QR de check-in'
-      : isMine && gig.data.status === 'checked_in'
-        ? 'Ler QR de check-out'
+  const checkpoint = !isMine
+    ? null
+    : gig.data.status === 'paid_held'
+      ? 'check_in'
+      : gig.data.status === 'checked_in'
+        ? 'check_out'
         : null;
+
+  const changeCode = (value: string) => {
+    setCode(value);
+    if (redeem.isError) redeem.reset();
+  };
+  // Sem envio automático no 4º dígito: cada erro conta, então a pessoa confere antes de confirmar.
+  const submitCode = () => {
+    if (code.length < CHECKPOINT_CODE_LENGTH || redeem.isPending) return;
+    redeem.mutate(code, { onSuccess: () => setCode('') });
+  };
 
   return (
     <Screen
       edges={['bottom']}
-      footer={scan && <Button title={scan} onPress={() => router.push('/professional/scan')} />}
+      footer={
+        checkpoint && (
+          <Button
+            title={checkpoint === 'check_in' ? 'Confirmar check-in' : 'Confirmar check-out'}
+            disabled={code.length < CHECKPOINT_CODE_LENGTH}
+            loading={redeem.isPending}
+            onPress={submitCode}
+          />
+        )
+      }
     >
       <ProfileRow
         imageUri={restaurant.cover_path && imageUrl('restaurant-photos', restaurant.cover_path)}
@@ -58,7 +88,17 @@ export function ProfessionalGigScreen() {
 
       {isMine ? (
         <>
-          <ProfessionalGigStage gig={gig.data} />
+          <ProfessionalGigStage gig={gig.data}>
+            {checkpoint && (
+              <CheckpointCodeField
+                kind={checkpoint}
+                value={code}
+                onChange={changeCode}
+                onSubmit={submitCode}
+                error={redeem.error?.message}
+              />
+            )}
+          </ProfessionalGigStage>
           <ChatButton
             area="professional"
             restaurantId={restaurant.id}

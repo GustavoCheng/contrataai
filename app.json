@@ -7,7 +7,8 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": false
+      "supportsTablet": false,
+      "bundleIdentifier": "com.contrataai.app"
     },
     "android": {
       "adaptiveIcon": {
@@ -16,7 +17,8 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.contrataai.app"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -36,17 +38,10 @@
         "expo-image-picker",
         {
           "photosPermission": "O ContrataAí usa suas fotos no seu perfil e na vitrine da loja.",
-          "cameraPermission": "O ContrataAí usa a câmera para fotos do perfil e da loja e para ler o QR de check-in e check-out."
+          "cameraPermission": "O ContrataAí usa a câmera para você tirar fotos do perfil e da loja."
         }
       ],
-      [
-        "expo-camera",
-        {
-          "cameraPermission": "O ContrataAí usa a câmera para fotos do perfil e da loja e para ler o QR de check-in e check-out.",
-          "microphonePermission": false,
-          "recordAudioAndroid": false
-        }
-      ]
+      "expo-font"
     ],
     "scheme": "contrataai",
     "experiments": {

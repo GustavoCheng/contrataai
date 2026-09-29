@@ -16,9 +16,9 @@
 | Formulários | react-hook-form + zod | Validação tipada em ~8 formulários sem estado manual por campo |
 | Listas | FlashList v2 | Listas grandes desde o início (regra do projeto) |
 | Imagens | expo-image + expo-image-picker | Cache de imagem nos cards; upload direto no Storage |
-| QR Code | react-native-qrcode-svg (exibir) + expo-camera (ler) | Tudo roda no Expo Go |
+| Check-in/out | Código de 4 dígitos gerado e conferido no banco (RPCs) | Substituiu o QR Code em 29/09/2026 (ver §5): dispensa câmera e funciona igual no celular e na web |
 | Data/hora | Chips com os próximos dias + horário digitado com máscara (sprint 4) | O dia sai em um toque e o horário em 4 dígitos; igual no celular e na web, sem dependência nativa. Substituiu o datetimepicker previsto no plano |
-| Edge Functions | `@supabase/server` (`withSupabase`) + `jose` + `fetch` | Padrão atual do Supabase para auth nas funções; `jose` assina o QR; Asaas e BrasilAPI via `fetch`, sem SDK |
+| Edge Functions | `@supabase/server` (`withSupabase`) + `fetch` | Padrão atual do Supabase para auth nas funções; Asaas, BrasilAPI e CEP via `fetch`, sem SDK |
 | Chaves | publishable no app; secret só nas Edge Functions | Modelo novo do Supabase (as chaves legadas `anon`/`service_role` param no fim de 2026) |
 | Pagamento | **Asaas** (Pix) | Único dos três com API de transferência Pix para qualquer chave: o freelancer não precisa abrir conta. Mercado Pago exige assinatura Ed25519 com cadastro manual para payouts; Stripe não faz Pix de saída para terceiros no Brasil |
 | Qualidade | ESLint (`eslint-config-expo`) + Prettier + `tsc --noEmit`; testes pgTAP no banco | RLS e transições de estado são a parte crítica: testadas onde vivem |
@@ -50,12 +50,12 @@ contrataai/
 │   │   ├── restaurant/
 │   │   │   ├── (tabs)/              # Profissionais · Vagas · Freelas · Mensagens · Loja
 │   │   │   ├── jobs/new.tsx · jobs/[id].tsx       # criar | editar/encerrar + candidaturas
-│   │   │   ├── gigs/new.tsx · gigs/[id].tsx       # publicar | aceites, confirmar, Pix, QR, liberar
+│   │   │   ├── gigs/new.tsx · gigs/[id].tsx       # publicar | aceites, confirmar, Pix, código, liberar
 │   │   │   └── professionals/[id].tsx
 │   │   ├── professional/
 │   │   │   ├── onboarding.tsx
 │   │   │   ├── (tabs)/              # Explorar · Freelas · Candidaturas · Mensagens · Perfil
-│   │   │   ├── jobs/[id].tsx · gigs/[id].tsx · scan.tsx
+│   │   │   ├── jobs/[id].tsx · gigs/[id].tsx
 │   │   │   └── restaurants/[id].tsx
 │   │   └── (em cada área) chat/[id].tsx  # conversa; a tela é a mesma (feature chat)
 │   ├── features/                    # cada uma: screens/ components/ hooks/ services/ + index.ts (API pública)
@@ -65,7 +65,7 @@ contrataai/
 │   │   ├── openings/                # vitrine do profissional (vagas + freelas)
 │   │   ├── jobs/                    # vagas fixas e candidaturas recebidas
 │   │   ├── applications/            # "Minhas candidaturas" + histórico de freelas
-│   │   ├── gigs/                    # chamados, aceites, confirmação, QR de check-in/out
+│   │   ├── gigs/                    # chamados, aceites, confirmação, código de check-in/out
 │   │   ├── payments/                # cobrança Pix, liberação, status do repasse
 │   │   ├── chat/                    # inbox e conversa em tempo real
 │   │   └── reviews/                 # avaliar e listar avaliações
@@ -79,9 +79,9 @@ contrataai/
 │   ├── seed.sql                     # restaurantes, profissionais e vagas de exemplo
 │   ├── tests/                       # pgTAP: RLS e máquina de estados
 │   └── functions/
-│       ├── _shared/                 # asaas.ts, brasil-api.ts, checkpoint-token.ts, http.ts, database.types.ts
-│       └── register-restaurant/ · create-gig-charge/ · asaas-webhook/ · issue-checkpoint/
-│           redeem-checkpoint/ · release-gig-payment/ · cancel-gig/
+│       ├── _shared/                 # asaas.ts, brasil-api.ts, cep.ts, gig.ts, http.ts, database.types.ts
+│       └── register-restaurant/ · lookup-cep/ · create-gig-charge/ · asaas-webhook/
+│           release-gig-payment/ · cancel-gig/
 ├── .env.example                     # EXPO_PUBLIC_SUPABASE_URL, EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 └── app.json · package.json · tsconfig.json (strict, alias @/*) · eslint.config.js · .prettierrc
 ```
@@ -137,8 +137,8 @@ Como isso é garantido:
 |---|---|---|---|
 | 1 | `open → confirmed` | restaurante escolhe um dos aceites | RPC `confirm_gig_professional` (recusa os demais e cria a conversa) |
 | 2 | `confirmed → paid_held` | Pix recebido | Edge `asaas-webhook` |
-| 3 | `paid_held → checked_in` | freelancer lê o QR de check-in | Edge `redeem-checkpoint` |
-| 4 | `checked_in → checked_out` | freelancer lê o QR de check-out | Edge `redeem-checkpoint` |
+| 3 | `paid_held → checked_in` | freelancer digita o código de check-in | RPC `redeem_gig_checkpoint` |
+| 4 | `checked_in → checked_out` | freelancer digita o código de check-out | RPC `redeem_gig_checkpoint` |
 | 5 | `checked_out → released` | restaurante libera | Edge `release-gig-payment` (transferência Pix) |
 | 6 | `open` / `confirmed` / `paid_held → cancelled` | restaurante cancela | Edge `cancel-gig` (estorno se já pagou) |
 | 7 | `paid_held` / `checked_in` / `checked_out → disputed` | qualquer das partes | RPC `open_gig_dispute` |
@@ -168,13 +168,11 @@ Na sprint 1 esses cenários viram testes pgTAP em `supabase/tests/`.
 | `register-restaurant` | app, sem sessão | publishable key | Consulta o CNPJ na BrasilAPI: 404 → "não encontrado", 400 → "inválido", situação ≠ ATIVA → recusa informando a situação. Bloqueia CNPJ repetido, cria o usuário (Admin API), converte o profile para restaurante e cria a loja com os dados da Receita. Se algo falhar no meio, apaga o usuário. Em seguida o app faz login. |
 | `create-gig-charge` | restaurante | usuário | Para um chamado `confirmed` do próprio restaurante: busca ou cria o cliente no Asaas pelo CNPJ, cria a cobrança Pix, grava em `payments` e devolve o QR e o copia-e-cola. Idempotente: se já há cobrança pendente, devolve a mesma. |
 | `asaas-webhook` | Asaas | token no header `asaas-access-token` | `PAYMENT_RECEIVED` → `paid_held` (se o chamado foi cancelado nesse meio-tempo, estorna). `PAYMENT_REFUNDED` → `refunded`. `TRANSFER_DONE` / `FAILED` / `CANCELLED` → status do repasse. Idempotente: evento repetido não muda nada. |
-| `issue-checkpoint` | restaurante | usuário | Gera o token do QR: check-in se `paid_held`, check-out se `checked_in`. JWT HS256 com `gig_id`, `kind` e validade de 5 min, assinado com um segredo que só o back-end tem. |
-| `redeem-checkpoint` | freelancer | usuário | Confere assinatura e validade, se quem leu é o freelancer confirmado e se o chamado está no estado de origem; então avança o estado, e o banco grava a hora. **Uso único:** depois da transição o estado de origem deixa de existir, então nem o mesmo QR nem outro gerado antes valem de novo. |
 | `release-gig-payment` | restaurante | usuário | Para um chamado `checked_out`: transfere via Pix o valor (menos `platform_fee_cents`, hoje 0) para a chave do freelancer, grava o id do repasse e passa o chamado para `released`. |
 | `cancel-gig` | restaurante | usuário | `open` ou `confirmed`: cancela a cobrança pendente no Asaas. `paid_held`: faz o estorno Pix. Depois, `cancelled`, e os aceites pendentes são recusados. Só o restaurante, até o check-in (decisão 1). |
 | `lookup-cep` *(sprint 2)* | app, logado | usuário | CEP → endereço com acentos e coordenadas do trecho do CEP (AwesomeAPI, sem chave). Usada nos perfis de loja e de profissional; o cadastro do restaurante usa o mesmo módulo para gravar as coordenadas da loja. |
 
-A pasta `_shared/` guarda o cliente Asaas mínimo (fetch), a consulta à BrasilAPI, a assinatura e verificação do token do QR, as respostas e erros HTTP e os tipos gerados do banco. Os segredos `ASAAS_API_KEY`, `ASAAS_WEBHOOK_TOKEN` e `CHECKPOINT_SECRET` ficam só em `supabase secrets`.
+A pasta `_shared/` guarda o cliente Asaas mínimo (fetch), a consulta à BrasilAPI, a consulta de CEP, as respostas e erros HTTP e os tipos gerados do banco. Os segredos `ASAAS_API_KEY` e `ASAAS_WEBHOOK_TOKEN` ficam só em `supabase secrets`.
 
 ---
 
@@ -217,8 +215,8 @@ Toda sprint termina com `npx expo start` sem erro de tipo ou lint e com um rotei
 - **Distância calculada no banco** (haversine) entre as coordenadas do CEP da loja e as do profissional, nas views `openings` e `professional_cards` (`security_invoker`: vale a RLS de quem consulta). Listas paginadas de 20 em 20.
 - **Tempo real só invalida o cache:** o Realtime (com RLS) avisa que o freela, os aceites, o pagamento ou a conversa mudaram, e a tela busca de novo. Assim o Pix pago, o check-in lido pelo freelancer e o repasse concluído aparecem sozinhos na tela do outro lado.
 - **Webhooks do Asaas simulados no ambiente local** (`npm run sandbox:pay` / `sandbox:payout`), porque o sandbox não alcança o `localhost`. Cobrança, estorno e transferência são chamadas reais ao sandbox.
-- **QR de check-in/out:** token assinado de 5 minutos, renovado sozinho a cada 4 minutos enquanto o restaurante deixa o QR aberto. O uso único vem da troca de estado: depois do check-in, nenhum QR de check-in vale mais.
-- **Tela do freela por etapa:** um card diz em que pé está e o que vem a seguir; a ação da etapa (pagar, mostrar QR, ler QR, liberar) fica no rodapé, na zona do polegar. Cancelar e abrir disputa ficam em "Imprevistos", no fim da tela, e pedem dois toques. A linha do tempo mostra a hora de cada etapa.
+- **QR de check-in/out (substituído pelo código de 4 dígitos em 29/09/2026):** token assinado de 5 minutos, renovado sozinho a cada 4 minutos enquanto o restaurante deixa o QR aberto. O uso único vem da troca de estado: depois do check-in, nenhum QR de check-in vale mais.
+- **Tela do freela por etapa:** um card diz em que pé está e o que vem a seguir; a ação da etapa (pagar, mostrar o código, confirmar o código, liberar) fica no rodapé, na zona do polegar. Cancelar e abrir disputa ficam em "Imprevistos", no fim da tela, e pedem dois toques. A linha do tempo mostra a hora de cada etapa.
 - **Momentos de pico:** "Check-in confirmado" (restaurante) e "Pagamento liberado!" (freelancer) com o ícone animado; a animação respeita o "reduzir movimento" do sistema.
 - **Avaliações nos perfis** vêm da view `review_cards`: `reviews.reviewer_id` aponta para `profiles`, que só o dono lê, então o nome e a foto de quem avaliou saem da loja ou do perfil profissional. O perfil mostra as 20 mais recentes; a média vem do trigger.
 - **Coral escurecido para `#C24020`** na revisão de acessibilidade: o texto coral no fundo coral-claro (botões secundários e selos) tinha contraste 4,2:1, abaixo do AA.
@@ -240,8 +238,24 @@ Pedido do usuário: rodar o app de qualquer lugar, com o Asaas ainda no sandbox.
 - **Avisos do verificador do Supabase aceitos:** `confirm_gig_professional` e `open_gig_dispute` são `security definer` chamáveis por usuários logados de propósito (conferem `auth.uid()` por dentro).
 - **Túnel do Expo não entrou:** no computador de desenvolvimento o túnel não conecta (bloqueio de segurança do Windows/antivírus). Para usar o app longe do computador, o caminho é gerar o app instalável (EAS Build).
 
+### Check-in e check-out por código de 4 dígitos (29/09/2026)
+
+Pedido do usuário: trocar o QR Code por um código de 4 dígitos no início e no fim do turno.
+
+- **Quem mostra e quem digita:** o restaurante mostra (ou dita) o código e o freelancer confirmado digita no app dele. É a mesma direção do QR e do código de entrega dos apps de delivery: quem contrata tem o código, quem presta o serviço digita.
+- **Proteção de um código curto:** 4 dígitos são só 10 mil combinações, então o código vale 10 minutos, serve uma vez e trava depois de 5 erros. Só o restaurante gera outro; o freelancer não consegue pedir código novo para continuar tentando.
+- **No banco, não em Edge Function:** as RPCs `issue_gig_checkpoint` e `redeem_gig_checkpoint` substituem as funções `issue-checkpoint` e `redeem-checkpoint`. Não há mais integração externa nem segredo envolvido, e conferir o código, contar o erro e trocar o estado do freela acontecem numa transação só. A tabela `gig_checkpoints` não é lida pelo app.
+- **Erro não é exceção:** código errado, vencido ou travado voltam como resultado da RPC. Uma exceção desfaria a transação e, com ela, a contagem de erros.
+- **Sem envio automático no 4º dígito:** como cada erro conta, a pessoa confere os números antes de tocar em "Confirmar".
+- **Saíram do app:** a tela de leitura do QR, a permissão de câmera para isso e as dependências `expo-camera`, `react-native-qrcode-svg` e `react-native-svg`.
+
+### Publicação e app instalável (29/09/2026)
+
+- **Todas as Edge Functions declaradas em `supabase/config.toml`:** a integração do Supabase com o GitHub só publica as funções declaradas.
+- **`eas.json` com os perfis `preview` (APK para Android, distribuição interna) e `production`**, os dois apontando para o servidor na nuvem. Identificador do app: `com.contrataai.app`.
+
 ### Migrações depois da inicial
-`profiles_location` (sprint 2), `explore_distance` (3), `realtime_inbox` (4), `realtime_payments` (5) e `review_cards` (6).
+`profiles_location` (sprint 2), `explore_distance` (3), `realtime_inbox` (4), `realtime_payments` (5), `review_cards` (6) e `checkpoint_codes` (código de 4 dígitos).
 
 ### Ajustes no schema aprovado (migração inicial)
 - `restaurants.address` virou campos separados (`street`, `number`, `complement`, `neighborhood`, `postal_code`) para exibir o bairro e geocodificar.
@@ -258,4 +272,4 @@ Pedido do usuário: rodar o app de qualquer lugar, com o Asaas ainda no sandbox.
 - **Tarifa do Asaas × repasse integral:** a tarifa do Pix recebido sai da conta da plataforma e o repasse ao freelancer é do valor cheio (a taxa da plataforma ainda é 0). A conta precisa de um pequeno saldo de reserva; sem ele, a liberação falha com "saldo insuficiente". Quem paga essa tarifa (restaurante, freelancer ou plataforma) é uma decisão de produto para quando entrar a taxa.
 - **Transferências em produção** exigem aprovação no app do Asaas ou IPs fixos (as Edge Functions não têm). Até existir um proxy com IP fixo, o repasse fica "em andamento" até a aprovação manual.
 - **Sandbox do Asaas:** às vezes credita o Pix confirmado só dois dias depois; até lá, liberações acima do saldo disponível falham no teste local.
-- **Expo Go:** câmera, SVG e FlashList rodam nele. Não é preciso build nativo nas sprints 1 a 6.
+- **Expo Go:** FlashList, seletor de imagem e área de transferência rodam nele. Não é preciso build nativo nas sprints 1 a 6.

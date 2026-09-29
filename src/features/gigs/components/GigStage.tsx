@@ -10,14 +10,14 @@ const DISPUTE_TEXT =
 // O banco grava a hora de cada etapa ao trocar de estado; o traço só cobre um dado ausente.
 const timeOf = (iso: string | null) => (iso ? formatTime(iso) : '—');
 
-type RestaurantGigStageProps = {
+type GigStageProps = {
   gig: Gig;
-  /** Conteúdo da etapa aberto pelo rodapé: o Pix gerado ou o QR de check-in/out. */
+  /** Conteúdo da etapa: o Pix gerado ou o código de check-in/out (mostrar ou digitar). */
   children?: ReactNode;
 };
 
 /** O que acontece agora no freela, do lado do restaurante (da confirmação em diante). */
-export function RestaurantGigStage({ gig, children }: RestaurantGigStageProps) {
+export function RestaurantGigStage({ gig, children }: GigStageProps) {
   const name = gig.professionals?.full_name.split(' ')[0] ?? 'o freelancer';
   const amount = formatMoney(gig.amount_cents);
 
@@ -39,7 +39,7 @@ export function RestaurantGigStage({ gig, children }: RestaurantGigStageProps) {
           icon="shield-checkmark-outline"
           tone="positive"
           title="Pagamento retido"
-          description={`Quando ${name} chegar, mostre o QR de check-in para a leitura pelo app.`}
+          description={`Quando ${name} chegar, mostre o código de check-in para digitar no app.`}
         >
           {children}
         </StatusCard>
@@ -51,7 +51,7 @@ export function RestaurantGigStage({ gig, children }: RestaurantGigStageProps) {
           icon="checkmark-circle"
           tone="positive"
           title="Check-in confirmado"
-          description={`${name} chegou às ${timeOf(gig.checked_in_at)}. No fim do turno, mostre o QR de check-out.`}
+          description={`${name} chegou às ${timeOf(gig.checked_in_at)}. No fim do turno, mostre o código de check-out.`}
         >
           {children}
         </StatusCard>
@@ -103,7 +103,7 @@ export function RestaurantGigStage({ gig, children }: RestaurantGigStageProps) {
 }
 
 /** O que acontece agora no freela, do lado do freelancer confirmado. */
-export function ProfessionalGigStage({ gig }: { gig: Gig }) {
+export function ProfessionalGigStage({ gig, children }: GigStageProps) {
   switch (gig.status) {
     case 'confirmed':
       return (
@@ -120,8 +120,10 @@ export function ProfessionalGigStage({ gig }: { gig: Gig }) {
           icon="shield-checkmark-outline"
           tone="positive"
           title="Pagamento garantido"
-          description="O valor já está retido. Ao chegar, leia o QR de check-in no celular do restaurante."
-        />
+          description="O valor já está retido. Ao chegar, peça o código de check-in ao restaurante e digite aqui."
+        >
+          {children}
+        </StatusCard>
       );
     case 'checked_in':
       return (
@@ -129,8 +131,10 @@ export function ProfessionalGigStage({ gig }: { gig: Gig }) {
           icon="checkmark-circle-outline"
           tone="positive"
           title={`Check-in às ${timeOf(gig.checked_in_at)}`}
-          description="No fim do turno, leia o QR de check-out no celular do restaurante."
-        />
+          description="No fim do turno, peça o código de check-out ao restaurante e digite aqui."
+        >
+          {children}
+        </StatusCard>
       );
     case 'checked_out':
       return (

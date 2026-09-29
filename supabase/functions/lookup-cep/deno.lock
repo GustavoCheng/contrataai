@@ -301,7 +301,6 @@
       "jsr:@supabase/functions-js@2",
       "npm:@supabase/server@^1.8.0",
       "npm:@supabase/supabase-js@^2.117.1",
-      "npm:jose@^6.2.12",
       "npm:zod@^4.6.5"
     ]
   }

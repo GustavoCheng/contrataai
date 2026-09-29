@@ -421,3 +421,17 @@ verify_jwt = false
 # Chamado pelo Asaas: autentica pelo token do webhook (header asaas-access-token).
 [functions.asaas-webhook]
 verify_jwt = false
+
+# As demais funções são chamadas por usuários logados (a plataforma confere o JWT antes).
+# Todas ficam declaradas aqui porque a integração com o GitHub só publica as declaradas.
+[functions.lookup-cep]
+verify_jwt = true
+
+[functions.create-gig-charge]
+verify_jwt = true
+
+[functions.release-gig-payment]
+verify_jwt = true
+
+[functions.cancel-gig]
+verify_jwt = true

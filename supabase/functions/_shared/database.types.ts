@@ -126,6 +126,41 @@ export type Database = {
           },
         ]
       }
+      gig_checkpoints: {
+        Row: {
+          code: string
+          created_at: string
+          expires_at: string
+          failed_attempts: number
+          gig_id: string
+          kind: Database["public"]["Enums"]["checkpoint_kind"]
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          expires_at: string
+          failed_attempts?: number
+          gig_id: string
+          kind: Database["public"]["Enums"]["checkpoint_kind"]
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          expires_at?: string
+          failed_attempts?: number
+          gig_id?: string
+          kind?: Database["public"]["Enums"]["checkpoint_kind"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gig_checkpoints_gig_id_fkey"
+            columns: ["gig_id"]
+            isOneToOne: false
+            referencedRelation: "gigs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       gigs: {
         Row: {
           amount_cents: number
@@ -835,11 +870,30 @@ export type Database = {
         Args: { p_gig_id: string; p_professional_id: string }
         Returns: undefined
       }
+      issue_gig_checkpoint: {
+        Args: { p_gig_id: string; p_renew?: boolean }
+        Returns: {
+          code: string
+          expires_at: string
+          kind: Database["public"]["Enums"]["checkpoint_kind"]
+        }[]
+      }
       open_gig_dispute: { Args: { p_gig_id: string }; Returns: undefined }
+      redeem_gig_checkpoint: {
+        Args: { p_code: string; p_gig_id: string }
+        Returns: Database["public"]["Enums"]["checkpoint_outcome"]
+      }
     }
     Enums: {
       account_type: "restaurant" | "professional"
       application_status: "sent" | "accepted" | "rejected"
+      checkpoint_kind: "check_in" | "check_out"
+      checkpoint_outcome:
+        | "checked_in"
+        | "checked_out"
+        | "invalid_code"
+        | "locked"
+        | "expired"
       gig_status:
         | "open"
         | "confirmed"
@@ -999,6 +1053,14 @@ export const Constants = {
     Enums: {
       account_type: ["restaurant", "professional"],
       application_status: ["sent", "accepted", "rejected"],
+      checkpoint_kind: ["check_in", "check_out"],
+      checkpoint_outcome: [
+        "checked_in",
+        "checked_out",
+        "invalid_code",
+        "locked",
+        "expired",
+      ],
       gig_status: [
         "open",
         "confirmed",
