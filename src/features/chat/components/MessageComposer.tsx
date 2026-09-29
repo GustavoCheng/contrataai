@@ -8,9 +8,10 @@ type Props = { sending: boolean; onSend: (body: string) => void };
 export function MessageComposer({ sending, onSend }: Props) {
   const [draft, setDraft] = useState('');
   const body = draft.trim();
+  const disabled = !body || sending;
 
   const send = () => {
-    if (!body || sending) return;
+    if (disabled) return;
     onSend(body);
     setDraft('');
   };
@@ -30,9 +31,9 @@ export function MessageComposer({ sending, onSend }: Props) {
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Enviar mensagem"
-        disabled={!body || sending}
+        disabled={disabled}
         onPress={send}
-        style={[styles.send, (!body || sending) && styles.disabled]}
+        style={[styles.send, disabled && styles.disabled]}
       >
         {sending ? (
           <ActivityIndicator color={colors.onPrimary} />

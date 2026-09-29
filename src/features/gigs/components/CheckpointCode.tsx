@@ -3,15 +3,10 @@ import { formatTime } from '@/shared/lib/format';
 import { Button, Notice, Text, colors, radius, spacing } from '@/shared/ui';
 import { useCheckpoint, useRenewCheckpoint } from '../hooks/useGigs';
 import type { CheckpointKind } from '../services/gigs.service';
-
-const labels: Record<CheckpointKind, string> = {
-  check_in: 'Código de check-in',
-  check_out: 'Código de check-out',
-};
+import { checkpointLabels } from './CheckpointCodeField';
 
 type CheckpointCodeProps = { gigId: string; kind: CheckpointKind; professionalName: string };
 
-/** Código de 4 dígitos que o restaurante mostra ou dita para o freelancer digitar no app. */
 export function CheckpointCode({ gigId, kind, professionalName }: CheckpointCodeProps) {
   const checkpoint = useCheckpoint(gigId, kind);
   const renew = useRenewCheckpoint(gigId, kind);
@@ -32,12 +27,12 @@ export function CheckpointCode({ gigId, kind, professionalName }: CheckpointCode
       ) : (
         <>
           <Text variant="caption" weight="semibold" tone="muted">
-            {labels[kind]}
+            {checkpointLabels[kind]}
           </Text>
           <Text
             variant="title"
             style={styles.code}
-            accessibilityLabel={`${labels[kind]}: ${checkpoint.data.code.split('').join(', ')}`}
+            accessibilityLabel={`${checkpointLabels[kind]}: ${checkpoint.data.code.split('').join(', ')}`}
           >
             {checkpoint.data.code}
           </Text>

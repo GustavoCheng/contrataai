@@ -1,17 +1,13 @@
 import { Stack } from 'expo-router';
 import { useProfessionalSettings } from '@/features/professionals';
 import { useUserId } from '@/shared/hooks/useSession';
-import { ErrorView, LoadingView, stackScreenOptions } from '@/shared/ui';
+import { QueryFallback, stackScreenOptions } from '@/shared/ui';
 
-/** Sem perfil profissional, a área só tem o onboarding; salvo o perfil, entram as abas. */
 export default function ProfessionalLayout() {
   const userId = useUserId();
   const settings = useProfessionalSettings(userId);
 
-  if (settings.isPending) return <LoadingView />;
-  if (settings.isError) {
-    return <ErrorView message={settings.error.message} onRetry={() => settings.refetch()} />;
-  }
+  if (!settings.isSuccess) return <QueryFallback queries={[settings]} />;
   const hasProfile = settings.data !== null;
 
   return (

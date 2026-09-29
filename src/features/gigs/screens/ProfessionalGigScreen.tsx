@@ -6,11 +6,11 @@ import { GigReview } from '@/features/reviews';
 import { useUserId } from '@/shared/hooks/useSession';
 import { formatPlace } from '@/shared/lib/location';
 import { imageUrl } from '@/shared/lib/storage';
-import { Button, ErrorView, LoadingView, Notice, ProfileRow, Screen, Section } from '@/shared/ui';
+import { Button, Notice, ProfileRow, QueryFallback, Screen, Section } from '@/shared/ui';
 import { AcceptGigAction } from '../components/AcceptGigAction';
 import { CHECKPOINT_CODE_LENGTH, CheckpointCodeField } from '../components/CheckpointCodeField';
 import { GigIssueActions } from '../components/GigIssueActions';
-import { ProfessionalGigStage } from '../components/GigStage';
+import { GigStage } from '../components/GigStage';
 import { GigSummary } from '../components/GigSummary';
 import { GigTimeline } from '../components/GigTimeline';
 import { PixKeyRequired } from '../components/PixKeyRequired';
@@ -21,9 +21,8 @@ import {
   useMyGigApplications,
   useRedeemCheckpoint,
 } from '../hooks/useGigs';
-import { REVIEWABLE } from '../rules';
+import { checkpointFor, REVIEWABLE } from '../rules';
 
-/** Freela visto pelo profissional: aceitar e, se confirmado, check-in/out e pagamento. */
 export function ProfessionalGigScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const professionalId = useUserId();
@@ -35,21 +34,14 @@ export function ProfessionalGigScreen() {
   const [code, setCode] = useState('');
   useGigRealtime(id);
 
-  if (gig.isPending) return <LoadingView />;
-  if (gig.isError) return <ErrorView message={gig.error.message} onRetry={() => gig.refetch()} />;
+  if (!gig.isSuccess) return <QueryFallback queries={[gig]} />;
 
   const restaurant = gig.data.restaurants;
   const status = mine.data?.find((application) => application.gigs.id === id)?.status;
   const hasPixKey = Boolean(settings.data?.payout_accounts);
   const isMine = gig.data.professional_id === professionalId;
   const isOpen = gig.data.status === 'open';
-  const checkpoint = !isMine
-    ? null
-    : gig.data.status === 'paid_held'
-      ? 'check_in'
-      : gig.data.status === 'checked_in'
-        ? 'check_out'
-        : null;
+  const checkpoint = isMine ? checkpointFor(gig.data.status) : null;
 
   const changeCode = (value: string) => {
     setCode(value);
@@ -88,7 +80,7 @@ export function ProfessionalGigScreen() {
 
       {isMine ? (
         <>
-          <ProfessionalGigStage gig={gig.data}>
+          <GigStage gig={gig.data} viewer="professional">
             {checkpoint && (
               <CheckpointCodeField
                 kind={checkpoint}
@@ -98,7 +90,7 @@ export function ProfessionalGigScreen() {
                 error={redeem.error?.message}
               />
             )}
-          </ProfessionalGigStage>
+          </GigStage>
           <ChatButton
             area="professional"
             restaurantId={restaurant.id}

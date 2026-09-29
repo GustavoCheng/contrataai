@@ -2,23 +2,19 @@ import { router } from 'expo-router';
 import { useSignOut } from '@/features/auth';
 import { ReviewList } from '@/features/reviews';
 import { useUserId } from '@/shared/hooks/useSession';
-import { Button, ErrorView, LoadingView, Notice, Screen } from '@/shared/ui';
+import { Button, Notice, QueryFallback, Screen } from '@/shared/ui';
 import { PixKeyStatus } from '../components/PixKeyStatus';
 import { ProfessionalProfileView } from '../components/ProfessionalProfileView';
 import { useProfessional, useProfessionalSettings } from '../hooks/useProfessional';
 
-/** Aba "Perfil": o perfil como os restaurantes veem, mais o que só a pessoa vê. */
 export function ProfileScreen() {
   const userId = useUserId();
   const professional = useProfessional(userId);
   const settings = useProfessionalSettings(userId);
   const signOut = useSignOut();
 
-  if (professional.isPending || settings.isPending) return <LoadingView />;
-  if (professional.isError) {
-    return (
-      <ErrorView message={professional.error.message} onRetry={() => professional.refetch()} />
-    );
+  if (!professional.isSuccess || settings.isPending) {
+    return <QueryFallback queries={[professional, settings]} />;
   }
 
   return (

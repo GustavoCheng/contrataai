@@ -1,30 +1,16 @@
 import { router } from 'expo-router';
 import { useUserId } from '@/shared/hooks/useSession';
 import { formatMessageTime } from '@/shared/lib/format';
-import {
-  EmptyState,
-  ErrorView,
-  LoadingView,
-  ProfileRow,
-  Screen,
-  ScreenTitle,
-  Text,
-} from '@/shared/ui';
+import { EmptyState, ProfileRow, QueryFallback, Screen, ScreenTitle, Text } from '@/shared/ui';
 import { useConversations } from '../hooks/useChat';
 import { otherParty } from '../otherParty';
 import type { AccountType } from '@/shared/lib/labels';
 
-/** Aba "Mensagens": conversas abertas depois de cada match, a mais recente no topo. */
-export function InboxScreen({ area }: { area: AccountType }) {
+function InboxScreen({ area }: { area: AccountType }) {
   const userId = useUserId();
   const conversations = useConversations();
 
-  if (conversations.isPending) return <LoadingView />;
-  if (conversations.isError) {
-    return (
-      <ErrorView message={conversations.error.message} onRetry={() => conversations.refetch()} />
-    );
-  }
+  if (!conversations.isSuccess) return <QueryFallback queries={[conversations]} />;
 
   return (
     <Screen edges={['top']}>
@@ -40,28 +26,26 @@ export function InboxScreen({ area }: { area: AccountType }) {
           }
         />
       ) : (
-        conversations.data.map((conversation) => {
-          const party = otherParty(conversation, userId);
-          return (
-            <ProfileRow
-              key={conversation.id}
-              imageUri={party.imageUri}
-              placeholderIcon={party.placeholderIcon}
-              shape={party.shape}
-              title={party.name}
-              subtitle={conversation.last_message_body ?? 'Diga oi e combinem os detalhes.'}
-              trailing={
-                conversation.last_message_at && (
-                  <Text variant="caption" tone="muted">
-                    {formatMessageTime(conversation.last_message_at)}
-                  </Text>
-                )
-              }
-              onPress={() => router.push(`/${area}/chat/${conversation.id}`)}
-            />
-          );
-        })
+        conversations.data.map((conversation) => (
+          <ProfileRow
+            key={conversation.id}
+            {...otherParty(conversation, userId)}
+            subtitle={conversation.last_message_body ?? 'Diga oi e combinem os detalhes.'}
+            trailing={
+              conversation.last_message_at && (
+                <Text variant="caption" tone="muted">
+                  {formatMessageTime(conversation.last_message_at)}
+                </Text>
+              )
+            }
+            onPress={() => router.push(`/${area}/chat/${conversation.id}`)}
+          />
+        ))
       )}
     </Screen>
   );
 }
+
+export const RestaurantInboxScreen = () => <InboxScreen area="restaurant" />;
+
+export const ProfessionalInboxScreen = () => <InboxScreen area="professional" />;

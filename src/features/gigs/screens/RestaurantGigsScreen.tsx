@@ -1,33 +1,16 @@
 import { router } from 'expo-router';
-import { Pressable, StyleSheet, View } from 'react-native';
 import { useUserId } from '@/shared/hooks/useSession';
-import { formatMoney, formatShiftWindow } from '@/shared/lib/format';
+import { formatGigPay } from '@/shared/lib/format';
 import { gigStatusLabels, gigStatusTones, roleLabels } from '@/shared/lib/labels';
-import {
-  Button,
-  EmptyState,
-  ErrorView,
-  LoadingView,
-  Screen,
-  ScreenTitle,
-  StatusPill,
-  Text,
-  colors,
-  radius,
-  spacing,
-} from '@/shared/ui';
+import { Button, EmptyState, ListRow, QueryFallback, Screen, ScreenTitle } from '@/shared/ui';
 import { useRestaurantGigs } from '../hooks/useGigs';
 import type { RestaurantGig } from '../services/gigs.service';
 
-/** Aba "Freelas" do restaurante: chamados publicados e o andamento de cada um. */
 export function RestaurantGigsScreen() {
   const restaurantId = useUserId();
   const gigs = useRestaurantGigs(restaurantId);
 
-  if (gigs.isPending) return <LoadingView />;
-  if (gigs.isError) {
-    return <ErrorView message={gigs.error.message} onRetry={() => gigs.refetch()} />;
-  }
+  if (!gigs.isSuccess) return <QueryFallback queries={[gigs]} />;
 
   return (
     <Screen
@@ -59,39 +42,13 @@ function GigRow({ gig }: { gig: RestaurantGig }) {
         : `${acceptances} profissionais aceitaram`
       : gig.professionals?.full_name;
   return (
-    <Pressable
-      accessibilityRole="button"
+    <ListRow
+      title={roleLabels[gig.role]}
+      status={{ label: gigStatusLabels[gig.status], tone: gigStatusTones[gig.status] }}
+      subtitle={formatGigPay(gig.amount_cents, gig.starts_at, gig.ends_at)}
+      detail={detail ? { text: detail, highlight: acceptances > 0 } : undefined}
       accessibilityLabel={`${roleLabels[gig.role]}, ${gigStatusLabels[gig.status]}`}
       onPress={() => router.push(`/restaurant/gigs/${gig.id}`)}
-      style={({ pressed }) => [styles.row, pressed && styles.pressed]}
-    >
-      <View style={styles.rowHeader}>
-        <Text weight="semibold" tone="default" style={styles.flex}>
-          {roleLabels[gig.role]}
-        </Text>
-        <StatusPill label={gigStatusLabels[gig.status]} tone={gigStatusTones[gig.status]} />
-      </View>
-      <Text tone="muted">
-        {formatMoney(gig.amount_cents)} · {formatShiftWindow(gig.starts_at, gig.ends_at)}
-      </Text>
-      {detail && (
-        <Text variant="caption" weight="semibold" tone={acceptances > 0 ? 'primary' : 'muted'}>
-          {detail}
-        </Text>
-      )}
-    </Pressable>
+    />
   );
 }
-
-const styles = StyleSheet.create({
-  row: {
-    gap: spacing.xs,
-    padding: spacing.lg,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  pressed: { opacity: 0.7 },
-  rowHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  flex: { flex: 1 },
-});

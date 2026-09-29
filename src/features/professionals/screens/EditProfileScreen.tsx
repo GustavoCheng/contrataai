@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useUserId } from '@/shared/hooks/useSession';
-import { Button, ErrorView, LoadingView, Notice, Screen } from '@/shared/ui';
+import { Button, ErrorView, Notice, QueryFallback, Screen } from '@/shared/ui';
 import { ProfessionalFormFields } from '../components/ProfessionalFormFields';
 import { useProfessionalSettings, useSaveProfessional } from '../hooks/useProfessional';
 import { useProfessionalForm } from '../hooks/useProfessionalForm';
@@ -10,14 +10,9 @@ export function EditProfileScreen() {
   const userId = useUserId();
   const settings = useProfessionalSettings(userId);
 
-  if (settings.isPending) return <LoadingView />;
-  if (settings.isError || !settings.data) {
-    return (
-      <ErrorView
-        message={settings.error?.message ?? 'Perfil não encontrado.'}
-        onRetry={() => settings.refetch()}
-      />
-    );
+  if (!settings.isSuccess) return <QueryFallback queries={[settings]} />;
+  if (!settings.data) {
+    return <ErrorView message="Perfil não encontrado." onRetry={() => settings.refetch()} />;
   }
   return <EditProfileForm userId={userId} settings={settings.data} />;
 }

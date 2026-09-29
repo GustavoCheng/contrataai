@@ -2,20 +2,16 @@ import { router } from 'expo-router';
 import { useSignOut } from '@/features/auth';
 import { ReviewList } from '@/features/reviews';
 import { useUserId } from '@/shared/hooks/useSession';
-import { Button, ErrorView, LoadingView, Notice, Screen } from '@/shared/ui';
+import { Button, Notice, QueryFallback, Screen } from '@/shared/ui';
 import { StoreProfileView } from '../components/StoreProfileView';
 import { useRestaurant } from '../hooks/useRestaurant';
 
-/** Aba "Loja": a vitrine como os profissionais veem, com o atalho para editar. */
 export function StoreScreen() {
   const userId = useUserId();
   const restaurant = useRestaurant(userId);
   const signOut = useSignOut();
 
-  if (restaurant.isPending) return <LoadingView />;
-  if (restaurant.isError) {
-    return <ErrorView message={restaurant.error.message} onRetry={() => restaurant.refetch()} />;
-  }
+  if (!restaurant.isSuccess) return <QueryFallback queries={[restaurant]} />;
 
   return (
     <Screen

@@ -3,20 +3,18 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useForm } from 'react-hook-form';
 import { useUserId } from '@/shared/hooks/useSession';
 import { formatReaisInput } from '@/shared/lib/format';
-import { Button, ErrorView, LoadingView, Notice, Screen } from '@/shared/ui';
+import { Button, Notice, QueryFallback, Screen } from '@/shared/ui';
 import { JobFormFields } from '../components/JobFormFields';
 import { useJob, useSaveJob } from '../hooks/useJobs';
 import { jobFormSchema, type JobFormInput, type JobFormValues } from '../schemas';
 import type { Job } from '../services/jobs.service';
 
-/** Criar (sem id) ou editar (com id) uma vaga fixa. */
 export function JobFormScreen() {
   const { id } = useLocalSearchParams<{ id?: string }>();
   const job = useJob(id);
 
   if (!id) return <JobForm job={null} />;
-  if (job.isPending) return <LoadingView />;
-  if (job.isError) return <ErrorView message={job.error.message} onRetry={() => job.refetch()} />;
+  if (!job.isSuccess) return <QueryFallback queries={[job]} />;
   return <JobForm job={job.data} />;
 }
 

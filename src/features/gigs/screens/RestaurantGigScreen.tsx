@@ -10,30 +10,29 @@ import {
 } from '@/features/payments';
 import { GigReview } from '@/features/reviews';
 import { useUserId } from '@/shared/hooks/useSession';
-import { formatMoney } from '@/shared/lib/format';
+import { firstName, formatMoney } from '@/shared/lib/format';
 import { type GigStatus, roleLabels } from '@/shared/lib/labels';
 import { imageUrl } from '@/shared/lib/storage';
 import {
   Button,
   ConfirmButton,
-  ErrorView,
-  LoadingView,
   Notice,
   ProfileRow,
+  QueryFallback,
   Screen,
   Section,
   Text,
   spacing,
 } from '@/shared/ui';
 import { CheckpointCode } from '../components/CheckpointCode';
+import { checkpointLabels } from '../components/CheckpointCodeField';
 import { GigIssueActions } from '../components/GigIssueActions';
-import { RestaurantGigStage } from '../components/GigStage';
+import { GigStage } from '../components/GigStage';
 import { GigSummary } from '../components/GigSummary';
 import { GigTimeline } from '../components/GigTimeline';
 import { useConfirmGig, useGig, useGigApplications, useGigRealtime } from '../hooks/useGigs';
-import { REVIEWABLE } from '../rules';
+import { checkpointFor, REVIEWABLE } from '../rules';
 
-/** Chamado do próprio restaurante: aceites, Pix, código de check-in/out, liberação e histórico. */
 export function RestaurantGigScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const restaurantId = useUserId();
@@ -46,20 +45,15 @@ export function RestaurantGigScreen() {
   const [codeStage, setCodeStage] = useState<GigStatus | null>(null);
   useGigRealtime(id);
 
-  if (gig.isPending || applications.isPending) return <LoadingView />;
-  if (gig.isError) return <ErrorView message={gig.error.message} onRetry={() => gig.refetch()} />;
-  if (applications.isError) {
-    return (
-      <ErrorView message={applications.error.message} onRetry={() => applications.refetch()} />
-    );
+  if (!gig.isSuccess || !applications.isSuccess) {
+    return <QueryFallback queries={[gig, applications]} />;
   }
 
   const { status } = gig.data;
   const freelancer = gig.data.professionals;
   const pending = applications.data.filter((application) => application.status === 'sent');
   const amount = formatMoney(gig.data.amount_cents);
-  const checkpoint =
-    status === 'paid_held' ? 'check_in' : status === 'checked_in' ? 'check_out' : null;
+  const checkpoint = checkpointFor(status);
   const showCode = checkpoint !== null && codeStage === status;
   const error = confirm.error ?? charge.error ?? release.error;
 
@@ -79,9 +73,7 @@ export function RestaurantGigScreen() {
       <Button variant="secondary" title="Esconder código" onPress={() => setCodeStage(null)} />
     ) : (
       <Button
-        title={
-          checkpoint === 'check_in' ? 'Mostrar código de check-in' : 'Mostrar código de check-out'
-        }
+        title={`Mostrar ${checkpointLabels[checkpoint].toLowerCase()}`}
         onPress={() => setCodeStage(status)}
       />
     );
@@ -102,16 +94,16 @@ export function RestaurantGigScreen() {
       <GigSummary gig={gig.data} />
       {error && <Notice message={error.message} />}
 
-      <RestaurantGigStage gig={gig.data}>
+      <GigStage gig={gig.data} viewer="restaurant">
         {status === 'confirmed' && charge.data && <PixChargeCard charge={charge.data} />}
         {showCode && freelancer && (
           <CheckpointCode
             gigId={id}
             kind={checkpoint}
-            professionalName={freelancer.full_name.split(' ')[0]}
+            professionalName={firstName(freelancer.full_name)}
           />
         )}
-      </RestaurantGigStage>
+      </GigStage>
 
       {status === 'open' && (
         <Section
@@ -135,7 +127,7 @@ export function RestaurantGigScreen() {
                   onPress={() => router.push(`/restaurant/professionals/${professional.id}`)}
                 />
                 <Button
-                  title={`Confirmar ${professional.full_name.split(' ')[0]}`}
+                  title={`Confirmar ${firstName(professional.full_name)}`}
                   loading={confirm.isPending && confirm.variables === professional.id}
                   disabled={confirm.isPending}
                   onPress={() => confirm.mutate(professional.id)}
@@ -168,7 +160,7 @@ export function RestaurantGigScreen() {
         <GigReview
           gigId={id}
           revieweeId={freelancer.id}
-          revieweeName={freelancer.full_name.split(' ')[0]}
+          revieweeName={firstName(freelancer.full_name)}
         />
       )}
 

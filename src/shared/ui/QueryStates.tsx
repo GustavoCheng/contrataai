@@ -24,6 +24,22 @@ export function ErrorView({ message, onRetry }: { message: string; onRetry: () =
   );
 }
 
+type QueryState = {
+  isPending: boolean;
+  isError: boolean;
+  error: { message: string } | null;
+  refetch: () => unknown;
+};
+
+/** Carregando ou erro; a tela devolve isto enquanto `isSuccess` não vale para todas as queries. */
+export function QueryFallback({ queries }: { queries: readonly QueryState[] }) {
+  const failed = queries.some((query) => query.isPending)
+    ? undefined
+    : queries.find((query) => query.isError);
+  if (!failed?.error) return <LoadingView />;
+  return <ErrorView message={failed.error.message} onRetry={() => failed.refetch()} />;
+}
+
 const styles = StyleSheet.create({
   fill: { flex: 1, backgroundColor: colors.background },
 });

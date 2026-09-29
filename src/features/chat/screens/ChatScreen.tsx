@@ -2,7 +2,7 @@ import { Stack, useLocalSearchParams } from 'expo-router';
 import { FlatList, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useUserId } from '@/shared/hooks/useSession';
-import { ErrorView, LoadingView, Notice, Text, colors, spacing } from '@/shared/ui';
+import { Notice, QueryFallback, Text, colors, spacing } from '@/shared/ui';
 import { MessageBubble } from '../components/MessageBubble';
 import { MessageComposer } from '../components/MessageComposer';
 import { useConversation, useMessages, useSendMessage } from '../hooks/useChat';
@@ -18,19 +18,13 @@ export function ChatScreen() {
   const messages = useMessages(id);
   const send = useSendMessage(id);
 
-  if (conversation.isPending || messages.isPending) return <LoadingView />;
-  if (conversation.isError) {
-    return (
-      <ErrorView message={conversation.error.message} onRetry={() => conversation.refetch()} />
-    );
-  }
-  if (messages.isError) {
-    return <ErrorView message={messages.error.message} onRetry={() => messages.refetch()} />;
+  if (!conversation.isSuccess || !messages.isSuccess) {
+    return <QueryFallback queries={[conversation, messages]} />;
   }
 
   return (
     <SafeAreaView style={styles.safe} edges={['bottom']}>
-      <Stack.Screen options={{ title: otherParty(conversation.data, userId).name }} />
+      <Stack.Screen options={{ title: otherParty(conversation.data, userId).title }} />
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -61,6 +55,5 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background },
   flex: { flex: 1 },
   list: { flexGrow: 1, padding: spacing.lg, gap: spacing.sm },
-  // A lista é invertida: o texto vazio também precisa desinverter.
-  empty: { textAlign: 'center', transform: [{ scaleY: -1 }] },
+  empty: { textAlign: 'center' },
 });

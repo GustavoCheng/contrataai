@@ -1,3 +1,5 @@
+import { shiftLabels, type WorkShift } from './labels';
+
 // Mínimo e máximo juntos: há motores que recusam só o máximo abaixo do padrão da moeda (2 casas).
 const money = new Intl.NumberFormat('pt-BR', {
   style: 'currency',
@@ -12,18 +14,17 @@ export function formatMoney(cents: number): string {
   return (cents % 100 === 0 ? money : moneyWithCents).format(cents / 100);
 }
 
-/** Salário fixo ou faixa: "R$ 3.500" / "R$ 3.500 – R$ 4.500". */
-export function formatPayRange(minCents: number, maxCents: number | null): string {
-  return maxCents && maxCents !== minCents
-    ? `${formatMoney(minCents)} – ${formatMoney(maxCents)}`
-    : formatMoney(minCents);
-}
-
-/** 0.4 -> "400 m"; 2.35 -> "2,4 km"; 12.2 -> "12 km". */
-export function formatDistance(km: number): string {
-  if (km < 1) return `${Math.max(100, Math.round((km * 1000) / 100) * 100)} m`;
-  if (km < 10) return `${km.toFixed(1).replace('.', ',')} km`;
-  return `${Math.round(km)} km`;
+/** "R$ 3.500 – R$ 4.500/mês · Noite" (faixa só quando o máximo difere; turno quando houver). */
+export function formatSalary(
+  minCents: number,
+  maxCents: number | null,
+  shift?: WorkShift | null,
+): string {
+  const range =
+    maxCents && maxCents !== minCents
+      ? `${formatMoney(minCents)} – ${formatMoney(maxCents)}`
+      : formatMoney(minCents);
+  return shift ? `${range}/mês · ${shiftLabels[shift]}` : `${range}/mês`;
 }
 
 const WEEKDAYS = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
@@ -31,23 +32,20 @@ export const pad = (value: number) => String(value).padStart(2, '0');
 const hourLabel = (date: Date) =>
   `${pad(date.getHours())}h${date.getMinutes() ? pad(date.getMinutes()) : ''}`;
 
-/** "sáb, 27/09" */
 export function formatDay(date: Date): string {
   return `${WEEKDAYS[date.getDay()]}, ${pad(date.getDate())}/${pad(date.getMonth() + 1)}`;
 }
 
-/** Turno do freela no horário do aparelho: "sáb, 27/09 · 18h–00h". */
-export function formatShiftWindow(startsAt: string, endsAt: string): string {
+/** Valor e turno do freela no horário do aparelho: "R$ 250 · sáb, 27/09 · 18h–00h". */
+export function formatGigPay(cents: number, startsAt: string, endsAt: string): string {
   const start = new Date(startsAt);
-  return `${formatDay(start)} · ${hourLabel(start)}–${hourLabel(new Date(endsAt))}`;
+  return `${formatMoney(cents)} · ${formatDay(start)} · ${hourLabel(start)}–${hourLabel(new Date(endsAt))}`;
 }
 
 const clock = (date: Date) => `${pad(date.getHours())}:${pad(date.getMinutes())}`;
 
-/** "18:05" */
 export const formatTime = (iso: string) => clock(new Date(iso));
 
-/** Momento de um evento do freela: "sáb, 27/09 às 18:05". */
 export function formatDateTime(iso: string): string {
   const date = new Date(iso);
   return `${formatDay(date)} às ${clock(date)}`;
@@ -74,7 +72,12 @@ export function formatReaisInput(text: string): string {
 
 export const reaisToCents = (text: string) => Number(text.replace(/\D/g, '') || 0) * 100;
 
-/** Mesma normalização das colunas de busca do banco: sem acento e em minúsculas. */
+export const firstName = (fullName: string) => fullName.split(' ')[0];
+
+/**
+ * Mesma normalização das colunas de busca do banco: sem acento e em minúsculas. Os caracteres
+ * removidos teriam significado especial no filtro `ilike` do PostgREST.
+ */
 export function normalizeSearch(text: string): string {
   return text
     .normalize('NFD')

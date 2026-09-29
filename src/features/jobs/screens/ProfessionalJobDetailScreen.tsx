@@ -4,20 +4,10 @@ import { useUserId } from '@/shared/hooks/useSession';
 import { applicationStatusLabels, applicationStatusTones } from '@/shared/lib/labels';
 import { formatPlace } from '@/shared/lib/location';
 import { imageUrl } from '@/shared/lib/storage';
-import {
-  Button,
-  ErrorView,
-  LoadingView,
-  Notice,
-  ProfileRow,
-  Screen,
-  StatusPill,
-  Text,
-} from '@/shared/ui';
+import { Button, Notice, ProfileRow, QueryFallback, Screen, StatusPill, Text } from '@/shared/ui';
 import { JobSummary } from '../components/JobSummary';
 import { useApplyToJob, useJob, useMyJobApplications } from '../hooks/useJobs';
 
-/** Vaga fixa vista pelo profissional, com "Candidatar-me". */
 export function ProfessionalJobDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const professionalId = useUserId();
@@ -25,12 +15,8 @@ export function ProfessionalJobDetailScreen() {
   const applications = useMyJobApplications(professionalId);
   const apply = useApplyToJob(id, professionalId);
 
-  if (job.isPending || applications.isPending) return <LoadingView />;
-  if (job.isError) return <ErrorView message={job.error.message} onRetry={() => job.refetch()} />;
-  if (applications.isError) {
-    return (
-      <ErrorView message={applications.error.message} onRetry={() => applications.refetch()} />
-    );
+  if (!job.isSuccess || !applications.isSuccess) {
+    return <QueryFallback queries={[job, applications]} />;
   }
 
   const restaurant = job.data.restaurants;

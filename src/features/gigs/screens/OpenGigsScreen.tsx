@@ -11,7 +11,6 @@ import { useAcceptGig, useMyGigApplications } from '../hooks/useGigs';
 
 const FILTERS = { kind: 'gig', role: null, city: '' } as const;
 
-/** Aba "Freelas" do profissional: chamados abertos, mais perto primeiro, aceite em um toque. */
 export function OpenGigsScreen() {
   const professionalId = useUserId();
   const gigs = useOpeningSearch(FILTERS);

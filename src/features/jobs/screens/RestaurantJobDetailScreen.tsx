@@ -7,10 +7,9 @@ import { imageUrl } from '@/shared/lib/storage';
 import {
   Button,
   ConfirmButton,
-  ErrorView,
-  LoadingView,
   Notice,
   ProfileRow,
+  QueryFallback,
   Screen,
   Section,
   StatusPill,
@@ -21,7 +20,6 @@ import { JobSummary } from '../components/JobSummary';
 import { useCloseJob, useDecideApplication, useJob, useJobApplications } from '../hooks/useJobs';
 import type { ApplicationDecision, JobApplication } from '../services/jobs.service';
 
-/** Vaga do próprio restaurante: candidaturas para aceitar ou recusar, editar e encerrar. */
 export function RestaurantJobDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const restaurantId = useUserId();
@@ -30,12 +28,8 @@ export function RestaurantJobDetailScreen() {
   const close = useCloseJob(id, restaurantId);
   const decide = useDecideApplication(id);
 
-  if (job.isPending || applications.isPending) return <LoadingView />;
-  if (job.isError) return <ErrorView message={job.error.message} onRetry={() => job.refetch()} />;
-  if (applications.isError) {
-    return (
-      <ErrorView message={applications.error.message} onRetry={() => applications.refetch()} />
-    );
+  if (!job.isSuccess || !applications.isSuccess) {
+    return <QueryFallback queries={[job, applications]} />;
   }
 
   const isOpen = job.data.status === 'open';

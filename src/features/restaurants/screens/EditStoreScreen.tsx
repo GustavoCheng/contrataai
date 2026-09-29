@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useUserId } from '@/shared/hooks/useSession';
-import { Button, ErrorView, LoadingView, Notice, Screen } from '@/shared/ui';
+import { Button, Notice, QueryFallback, Screen } from '@/shared/ui';
 import { StoreFormFields } from '../components/StoreFormFields';
 import { StorePhotosEditor } from '../components/StorePhotosEditor';
 import { useRestaurant, useUpdateStore } from '../hooks/useRestaurant';
@@ -11,14 +11,10 @@ export function EditStoreScreen() {
   const userId = useUserId();
   const restaurant = useRestaurant(userId);
 
-  if (restaurant.isPending) return <LoadingView />;
-  if (restaurant.isError) {
-    return <ErrorView message={restaurant.error.message} onRetry={() => restaurant.refetch()} />;
-  }
+  if (!restaurant.isSuccess) return <QueryFallback queries={[restaurant]} />;
   return <EditStoreForm restaurant={restaurant.data} />;
 }
 
-/** Separado para o formulário nascer com os dados já carregados. */
 function EditStoreForm({ restaurant }: { restaurant: Restaurant }) {
   const form = useStoreForm(restaurant);
   const update = useUpdateStore(restaurant.id);

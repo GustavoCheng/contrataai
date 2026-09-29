@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { useMyGigApplications } from '@/features/gigs';
 import { useMyJobApplications } from '@/features/jobs';
 import { useUserId } from '@/shared/hooks/useSession';
-import { formatMoney, formatPayRange, formatShiftWindow } from '@/shared/lib/format';
+import { formatGigPay, formatSalary } from '@/shared/lib/format';
 import {
   applicationStatusLabels,
   applicationStatusTones,
@@ -14,33 +14,20 @@ import { imageUrl } from '@/shared/lib/storage';
 import {
   Button,
   EmptyState,
-  ErrorView,
-  LoadingView,
   ProfileRow,
+  QueryFallback,
   Screen,
   ScreenTitle,
   Section,
   StatusPill,
 } from '@/shared/ui';
 
-/** Aba "Candidaturas": freelas (com o histórico) e vagas fixas, cada um com seu status. */
 export function MyApplicationsScreen() {
   const professionalId = useUserId();
   const gigs = useMyGigApplications(professionalId);
   const jobs = useMyJobApplications(professionalId);
 
-  if (gigs.isPending || jobs.isPending) return <LoadingView />;
-  if (gigs.isError || jobs.isError) {
-    return (
-      <ErrorView
-        message={(gigs.error ?? jobs.error)?.message ?? ''}
-        onRetry={() => {
-          void gigs.refetch();
-          void jobs.refetch();
-        }}
-      />
-    );
-  }
+  if (!gigs.isSuccess || !jobs.isSuccess) return <QueryFallback queries={[gigs, jobs]} />;
 
   return (
     <Screen edges={['top']}>
@@ -79,7 +66,7 @@ export function MyApplicationsScreen() {
                 placeholderIcon="storefront-outline"
                 shape="square"
                 title={`${roleLabels[gig.role]} · ${gig.restaurants.name}`}
-                subtitle={`${formatMoney(gig.amount_cents)} · ${formatShiftWindow(gig.starts_at, gig.ends_at)}`}
+                subtitle={formatGigPay(gig.amount_cents, gig.starts_at, gig.ends_at)}
                 trailing={<StatusPill label={pill.label} tone={pill.tone} />}
                 onPress={() => router.push(`/professional/gigs/${gig.id}`)}
               />
@@ -103,7 +90,7 @@ export function MyApplicationsScreen() {
               subtitle={
                 job.status === 'closed'
                   ? 'Vaga encerrada'
-                  : `${formatPayRange(job.salary_min_cents, job.salary_max_cents)}/mês`
+                  : formatSalary(job.salary_min_cents, job.salary_max_cents)
               }
               trailing={
                 <StatusPill

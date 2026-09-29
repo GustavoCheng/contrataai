@@ -1,5 +1,5 @@
-import { formatDistance } from '@/shared/lib/format';
 import { roleLabels } from '@/shared/lib/labels';
+import { formatNearby } from '@/shared/lib/location';
 import { imageUrl } from '@/shared/lib/storage';
 import { ListingCard } from '@/shared/ui';
 import type { ProfessionalCardData } from '../services/explore.service';
@@ -7,12 +7,7 @@ import type { ProfessionalCardData } from '../services/explore.service';
 type Props = { professional: ProfessionalCardData; onPress: () => void };
 
 export function ProfessionalCard({ professional, onPress }: Props) {
-  const place = [
-    professional.neighborhood ?? professional.city,
-    professional.distance_km != null && formatDistance(professional.distance_km),
-  ]
-    .filter(Boolean)
-    .join(' · ');
+  const place = formatNearby(professional);
   return (
     <ListingCard
       imageUri={professional.photo_path && imageUrl('avatars', professional.photo_path)}
