@@ -1,0 +1,144 @@
+CONTRATAAÍ — RESUMO PARA O VÍDEO
+=================================
+
+1. O QUE É (30 segundos)
+------------------------
+O ContrataAí é um aplicativo de celular (iPhone e Android) que conecta
+RESTAURANTES a PROFISSIONAIS de cozinha e operação: cozinheiro, sushiman,
+chapeiro, garçom, bartender, caixa, motoboy e outros. O restaurante encontra
+gente perto da loja para dois tipos de contratação:
+
+- Vaga fixa: emprego com salário mensal e turno (manhã, tarde, noite,
+  madrugada, integral).
+- Freela: um turno avulso, com dia, horário e valor, pago por Pix com garantia.
+
+O problema que resolve: hoje restaurante acha gente por indicação e grupo de
+WhatsApp, sem saber quem é confiável nem se vai aparecer; o profissional não
+sabe se vai receber. O app coloca os dois no mesmo lugar, com perfil,
+avaliações e pagamento garantido.
+
+
+2. QUEM USA (os dois lados)
+---------------------------
+RESTAURANTE
+- Cadastra com CNPJ (o app confirma na Receita Federal que o CNPJ está ativo
+  e puxa nome e endereço).
+- Monta a vitrine da loja (capa, fotos, descrição).
+- Explora profissionais perto da loja, por cargo e nome.
+- Publica vagas fixas e freelas.
+- Aceita ou recusa candidaturas; escolhe quem faz o freela.
+- Conversa no chat, avalia e é avaliado.
+
+PROFISSIONAL
+- Cadastra com e-mail, monta perfil com foto, cargos, experiência e CEP
+  (só bairro e cidade aparecem para os outros).
+- Cadastra a chave Pix para receber.
+- Explora vagas e freelas perto de casa, por cargo, tipo e cidade.
+- Candidata-se a vagas; aceita freelas em um toque.
+- Acompanha tudo na aba "Inscrições".
+- Conversa no chat, avalia e é avaliado.
+
+
+3. CASOS DE USO
+---------------
+1) Cadastro de restaurante com validação de CNPJ: CNPJ inválido, inexistente
+   ou inativo é recusado; ativo cria a conta e a loja já com os dados da
+   Receita.
+2) Perfil do profissional e perfil da loja, com foto, cargos em chips e
+   distância calculada pelo CEP.
+3) Vaga fixa: publicar -> profissional se candidata -> restaurante aceita ou
+   recusa -> ao aceitar, o chat abre sozinho.
+4) Freela com pagamento garantido (o caso principal, detalhado abaixo).
+5) Chat em tempo real entre as partes depois do match.
+6) Avaliações nos dois sentidos, só depois do turno concluído; a nota aparece
+   nos cards e perfis.
+7) Imprevistos: o restaurante pode cancelar o freela até o check-in (com
+   estorno integral se já pagou); qualquer parte pode abrir uma disputa entre
+   o pagamento e a liberação, e o valor fica congelado para a equipe analisar.
+
+
+4. O FLUXO PRINCIPAL: O FREELA (coração do vídeo)
+-------------------------------------------------
+1) Restaurante publica o freela: cargo, dia, horário e valor
+   (ex.: Sushiman, sábado, 18h-00h, R$ 250).
+2) Profissionais perto da loja veem o chamado na aba "Freelas" e aceitam em
+   um toque (precisa ter chave Pix cadastrada).
+3) Os aceites chegam ao vivo na tela do restaurante, que escolhe um
+   profissional e confirma. Isso abre o chat entre os dois.
+4) Restaurante paga por Pix: o app gera o QR Code e o código Pix Copia e Cola.
+   O dinheiro fica RETIDO NA PLATAFORMA, não vai direto para o profissional.
+5) O pagamento é reconhecido sozinho: quando o Pix cai, o freela muda para
+   "Pago · valor retido" nas duas telas, sem ninguém apertar nada.
+6) Check-in por código: no dia, o restaurante mostra um código de 4 dígitos no
+   app dele; o profissional digita no app dele. Isso registra a chegada.
+   O código vale 10 minutos, serve uma vez e trava depois de 5 erros.
+7) Check-out por código: mesmo processo no fim do turno.
+8) Liberação: o restaurante toca em "Liberar" e o valor vai por Pix para a
+   chave do profissional.
+9) Avaliação: os dois avaliam um ao outro.
+
+A ideia a destacar: o restaurante só paga quando confirma, e o profissional só
+recebe depois de trabalhar, mas tem a garantia de que o dinheiro já está
+retido antes de sair de casa.
+
+
+5. COMO FOI FEITO (1 minuto, se o professor for técnico)
+--------------------------------------------------------
+- App: React Native com Expo (roda em iPhone e Android com o mesmo código),
+  TypeScript, Expo Router.
+- Servidor: Supabase na nuvem (São Paulo): banco Postgres, login,
+  armazenamento de fotos e tempo real.
+- Regras de negócio no banco: quem pode ver e alterar o quê é garantido por
+  políticas no próprio banco (RLS); a máquina de estados do freela
+  (aberto -> confirmado -> pago -> check-in -> check-out -> liberado) é
+  validada por gatilhos, então nem um bug no app consegue pular etapa.
+  110 testes automatizados cobrem essas regras.
+- Integrações: Receita Federal (via BrasilAPI) para CNPJ, serviço de CEP para
+  endereço e distância, e Asaas para Pix (cobrança, estorno e transferência).
+  Hoje em sandbox: nenhum pagamento é de verdade.
+- Interface: responsiva (testada em três larguras de celular e no navegador),
+  textos acessíveis, alvos de toque de 44pt.
+
+
+6. ROTEIRO SUGERIDO DE GRAVAÇÃO (10 a 12 minutos)
+-------------------------------------------------
+Use DOIS aparelhos (ou um celular e o navegador) para mostrar os dois lados
+ao vivo. Contas de demonstração, senha: contrataai123
+- Restaurante: restaurante@contrataai.dev
+- Profissional com chave Pix: marina@contrataai.dev
+
+ 0:00  Tela inicial, os dois tipos de conta
+       -> O que é o app e o problema (seção 1)
+ 1:00  Login como restaurante; abas Explorar, Vagas, Freelas, Mensagens, Loja
+       -> O lado do restaurante
+ 2:00  Loja: capa, fotos, selo "CNPJ ativo na Receita"
+       -> Validação de CNPJ no cadastro
+ 3:00  Publicar um freela
+       -> Caso principal começa
+ 4:00  No outro aparelho, como Marina: aba Freelas, aceitar em um toque
+       -> Lado do profissional; o aceite aparece ao vivo no restaurante
+ 5:00  Restaurante confirma a Marina; chat abre; mandar uma mensagem
+       -> Match e chat em tempo real
+ 6:00  "Pagar com Pix": QR Code e código Copia e Cola
+       -> Dinheiro fica retido na plataforma
+ 6:30  No computador: npm run sandbox:pay
+       -> Simula o Pix caindo (sandbox); as duas telas mudam sozinhas
+          para "Pago"
+ 7:30  Restaurante "Mostrar código de check-in"; Marina digita
+       -> Check-in por código de 4 dígitos
+ 8:30  Mesmo processo para o check-out
+ 9:00  Restaurante "Liberar R$ 250"; no computador: npm run sandbox:payout
+       -> Transferência Pix para a chave da Marina; tela muda para
+          "Pix enviado"
+10:00  Os dois avaliam; a nota aparece no perfil
+       -> Avaliações
+11:00  Aba Inscrições da Marina; vaga fixa com candidatura (opcional)
+       -> Segundo tipo de contratação
+11:30  Encerramento
+       -> O que vem depois: Asaas em produção, publicação nas lojas
+
+DICAS
+- Deixe o "npx expo start" rodando antes de gravar.
+- Publique o freela com horário de hoje ou amanhã.
+- Se o sandbox:pay demorar, o Asaas sandbox às vezes leva alguns segundos
+  para avisar.
