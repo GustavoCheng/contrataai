@@ -1,0 +1,101 @@
+COMO RODAR O CONTRATAAÍ NO SEU COMPUTADOR E NO SEU CELULAR
+===========================================================
+
+Você precisa de:
+- Um computador com Node instalado (versão 20 ou mais nova). Baixe em https://nodejs.org
+- Git instalado. Baixe em https://git-scm.com
+- O app EXPO GO no celular (loja de apps).
+- Uma conta gratuita na Expo: https://expo.dev (crie com seu e-mail).
+- Celular e computador no MESMO Wi-Fi.
+
+Os dados do app vêm da internet (servidor na nuvem). Não precisa configurar
+nada de servidor, banco ou arquivo .env.
+
+
+PASSO 1 - BAIXAR O PROJETO (só na primeira vez)
+-----------------------------------------------
+Abra o terminal (no Windows: PowerShell; no Mac: Terminal) e digite:
+
+  git clone https://github.com/GustavoCheng/contrataai.git
+  cd contrataai
+  npm install
+
+Se o projeto já está no seu computador, entre na pasta e atualize:
+
+  cd contrataai
+  git pull
+  npm install
+
+
+PASSO 2 - ENTRAR NA SUA CONTA EXPO (só na primeira vez)
+-------------------------------------------------------
+  npx expo login
+
+Digite o e-mail e a senha da sua conta criada em expo.dev.
+No celular, abra o Expo Go e entre com a MESMA conta (ícone de perfil).
+No iPhone isso é obrigatório: sem o login igual nos dois lados, o app não abre.
+
+
+PASSO 3 - LIGAR O APP
+---------------------
+  npx expo start
+
+Vai aparecer um QR Code no terminal.
+- iPhone: abra o Expo Go. O projeto aparece na tela inicial dele, ou
+  leia o QR Code com a câmera do iPhone.
+- Android: abra o Expo Go e toque em "Scan QR code".
+
+Espere alguns segundos: na primeira vez o app demora um pouco para carregar.
+
+
+PASSO 4 - ENTRAR NO APP
+-----------------------
+Contas de teste (senha de todas: contrataai123):
+- Restaurante:   restaurante@contrataai.dev
+- Profissional:  marina@contrataai.dev   (já tem chave Pix cadastrada)
+- Profissional:  profissional@contrataai.dev   (conta nova, sem perfil, para
+  testar o cadastro do perfil)
+
+
+SE DER ERRO
+-----------
+"Sem conexão com o servidor. Verifique sua internet."
+  1. Confira se o celular tem internet (abra um site no navegador dele).
+  2. Na pasta do projeto, apague os arquivos .env e .env.local, se existirem
+     (eles apontam o app para um servidor que não existe no seu computador):
+       Windows:    del .env .env.local
+       Mac/Linux:  rm -f .env .env.local
+  3. Rode de novo com o cache limpo:   npx expo start -c
+  4. Teste no navegador do celular:
+       https://pxpghoicyyraezfokxlc.supabase.co/auth/v1/health
+     Deve aparecer um texto com "version". Se não aparecer, o Wi-Fi está
+     bloqueando o endereço (comum em empresa/escola): use os dados móveis.
+
+"Project is incompatible with this version of Expo Go"
+  Atualize o Expo Go na loja de apps.
+
+O QR não carrega / fica em "Opening project"
+  - Celular e computador precisam estar no mesmo Wi-Fi.
+  - No Windows, libere o Node no firewall e marque a rede como "privada".
+  - Se o Wi-Fi isola os aparelhos (empresa, escola, hotel): ligue o hotspot
+    do celular, conecte o computador nele, e rode:   npx expo start --tunnel
+
+No iPhone o projeto não abre ou pede login
+  Terminal e Expo Go têm que estar na mesma conta Expo:
+  rode "npx expo login" no computador e entre no perfil do Expo Go com a
+  mesma conta.
+
+Erro vermelho no VS Code em "expo/tsconfig.base"
+  Faltou o "npm install". Rode e, se continuar, reinicie o VS Code.
+
+
+PARA SIMULAR O PAGAMENTO PIX (opcional, só para demonstração)
+-------------------------------------------------------------
+O Pix é de mentira (sandbox). Depois de tocar em "Pagar com Pix" no app,
+rode no computador, em outro terminal, dentro da pasta do projeto:
+
+  npm run sandbox:pay       -> confirma o Pix; o freela vira "Pago"
+  npm run sandbox:payout    -> depois de "Liberar": conclui o repasse
+
+Esses dois comandos precisam do arquivo supabase/functions/.env com as
+chaves do Asaas; peça ao Gustavo se for gravar essa parte.
